@@ -2,7 +2,7 @@
 
 The dedicated repository for a compiler implemented **in AttoLang itself**.
 
-**Status: NOT SELF-HOSTED.** The initial Atto-authored scalar code-generation kernel is a Stage-0 source seed. No end-to-end Atto guest compilation, Stage-1 compiler, Stage-2 recompilation or Stage-3 fixed-point proof is currently established.
+**Status: Stage-0 bounded scalar native guest execution VERIFIED; NOT SELF-HOSTED.** A pinned LLVM compiler snapshot compiled and executed the actual Atto-authored seed and 324 scalar guest checks on a private GitHub runner. No general Atto-written compiler CLI, Stage-1 compiler, Stage-2 recompilation or Stage-3 fixed-point proof exists. See [executed native evidence](docs/STAGE0_NATIVE_EVIDENCE.md).
 
 Specification and requirements: [atto-spec#70](https://github.com/atto-lang/atto-spec/issues/70).
 
@@ -40,9 +40,12 @@ error codes. These bytes are **not an executable Wasm module**.
 This is not yet a general lexer, parser, compiler CLI, typechecker,
 borrow checker or LLVM/Wasm binary emitter.
 
-The `main` smoke entry evaluates `6*7` and has expected native exit
-status 42 if a supported Atto frontend successfully compiles and executes
-it. **No such Atto guest execution is certified by this repository yet.**
+The `main` smoke entry evaluates `6*7` and returns native exit status 42.
+This was **actually compiled and executed** with the pinned LLVM Stage-0
+compiler (with real Clang 15 linking); the test then executed 324 scalar
+checks in eight generated Atto guest programs. This proves only the bounded
+seed profile, not arbitrary program compilation or compiler self-hosting.
+See [run 44174328233](https://github.com/atto-co/atto-ci/actions/runs/44174328233).
 
 ## Host-only reference checks
 
@@ -60,7 +63,7 @@ Neither test may be reported as self-hosting, Atto frontend parity, or actual `.
 
 ## Promotion criteria
 
-1. Demonstrate a real pinned Stage-0 Atto compiler compiling and executing this kernel against diverse positive/negative inputs, with exact-source and binary hashes.
+1. **Stage-0 scalar proof completed (pinned snapshot only):** a real native LLVM compiler compiled and executed this kernel with 324 positive/negative and extreme-input tests; see [evidence](docs/STAGE0_NATIVE_EVIDENCE.md). Repeat against current LLVM head separately.
 2. Build a real Atto-authored compiler CLI that reads source files, performs lexical/semantic checks, and emits executable target artifacts.
 3. Stage 1 compiles its entire own source to Stage 2; Stage 2 compiles to Stage 3, with independently checked semantics and reproducibility.
 4. Record actual executed CI steps, exact source tree / toolchain / artifact identities and independent Java/LLVM differential tests.
