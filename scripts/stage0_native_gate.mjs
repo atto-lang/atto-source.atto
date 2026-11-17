@@ -107,13 +107,14 @@ function runNativeGate() {
         binary_sha256: digest(fs.readFileSync(exe)),
         exit_code: guest.status
       });
+      console.error('STAGE0_NATIVE_GUEST_PASS ' + name + ' exit=' + guest.status + ' binary_sha256=' + digest(fs.readFileSync(exe)));
     };
     compileRun('unaltered', source, 42);
     for (let i = 0; i < cases.length; i += 45) {
       const chunk = cases.slice(i, i + 45);
       const assertions = chunk.map(([expr, value]) =>
         '    if ' + expr + ' neq ' + value + ' then\n        return 1;\n    fi');
-      const guestSource = base + '\ndefine pub fnc main(): int {\n' +
+      const guestSource = base + '\npub fnc main(): int {\n' +
         assertions.join('\n') + '\n    return 0;\n}\n';
       compileRun('matrix_' + i, guestSource, 0);
     }
