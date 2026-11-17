@@ -1,4 +1,4 @@
-name: Atto self-hosted bootstrap seed (host model only)
+name: Atto self-hosted bootstrap seed (host-only models)
 
 on:
   pull_request:
@@ -10,32 +10,60 @@ on:
   push:
     paths:
       - "src/**"
+      - "tests/**"
+      - "docs/**"
       - ".github/workflows/atto-self-hosted-seed.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  host-model:
+  rust-reference:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Check out exact submitted tree
+      - name: Check out immutable submitted commit
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Print source identity and compiler version
-        run: |
-          git rev-parse HEAD
-          git rev-parse HEAD^{tree}
-          rustc --version
-      - name: Execute Rust-only reference vectors
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Print checked-out source identity and compiler version
         shell: bash
         run: |
           set -euo pipefail
-          rustc --edition 2021 --test \
-            tests/scalar_seed_model.rs \
-            -o "$RUNNER_TEMP/atto-seed-model"
-          "$RUNNER_TEMP/atto-seed-model"
+          git rev-parse HEAD
+          git rev-parse 'HEAD^{tree}'
+          rustc --version
+      - name: Execute Rust host-only exhaustive model
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustc --edition 2021 --test tests/scalar_seed_model.rs -o "$RUNNER_TEMP/atto-seed-model"
+          "$RUNNER_TEMP/atto-seed-model" --nocapture
 
-# Deliberately DOES NOT certify Atto guest execution or self-hosting.
-# Native .atto source admission and Stage 1/2/3 must be verified separately.
+  wasm-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out immutable submitted commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Print checked-out source identity and Node version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          git rev-parse 'HEAD^{tree}'
+          node --version
+      - name: Execute real WebAssembly host-model vectors
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/scalar_seed_wasm.test.mjs
+
+# Both jobs test independent HOST reference models. They do NOT compile
+# src/scalar_codegen.atto or certify any stage of Atto self-hosting.
+# A run marked failure with steps=[] is NOT executed test evidence.
