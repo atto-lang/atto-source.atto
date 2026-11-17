@@ -56,7 +56,18 @@ function matrix() {
     ['signed_leb128_byte(-65)', -1001],
     ['signed_leb128_byte(64)', -1001],
     ['ascii_digit_value(-1)', -1],
-    ['ascii_digit_value(58)', -1]
+    ['ascii_digit_value(58)', -1],
+    // Public helpers must not overflow when given extreme host i64 values.
+    ['evaluate_digit_binary(9223372036854775807, 1, 9)', -1000],
+    ['evaluate_digit_binary(-9223372036854775807, 1, 9)', -1000],
+    ['evaluate_digit_binary(9, 1, 9223372036854775807)', -1000],
+    ['evaluate_digit_binary(9, 1, -9223372036854775807)', -1000],
+    ['ascii_digit_value(9223372036854775807)', -1],
+    ['ascii_digit_value(-9223372036854775807)', -1],
+    ['signed_leb128_byte(9223372036854775807)', -1001],
+    ['signed_leb128_byte(-9223372036854775807)', -1001],
+    ['compile_ascii_triplet(9223372036854775807, 43, 49)', -1],
+    ['compile_ascii_triplet(49, 43, -9223372036854775807)', -2]
   );
   return checks;
 }
