@@ -29,7 +29,22 @@ define pub fnc ascii_binary_opcode(int ascii): int {
     return 0;
 }
 
+// This helper is public in the bootstrap seed. Validate operands even when
+// called directly, not only when reached via compile_ascii_triplet.
+// Without these guards, extreme caller-supplied i64 values could overflow.
 define pub fnc evaluate_digit_binary(int left, int opcode, int right): int {
+    if left < 0 then
+        return -1000;
+    fi
+    if left > 9 then
+        return -1000;
+    fi
+    if right < 0 then
+        return -1000;
+    fi
+    if right > 9 then
+        return -1000;
+    fi
     if opcode eq 1 then
         return left + right;
     fi
