@@ -1,6 +1,6 @@
 # Self-hosting acceptance gates
 
-Target independent repository: `atto-lang/atto-source.atto`
+Canonical repository: `atto-lang/atto-source.atto` (established 2026-11-17)
 Tracking RFC: https://github.com/atto-lang/atto-spec/issues/70
 
 ## Definitions
@@ -11,7 +11,7 @@ Tracking RFC: https://github.com/atto-lang/atto-spec/issues/70
 - **Stage 2:** compiler built by compiling all stage-1 source with stage 1.
 - **Stage 3:** compiler built by compiling all stage-1 source with stage 2.
 
-**As of this seed: no stage-1, stage-2, or stage-3 executable exists.**
+**As of this seed in the dedicated repository: no stage-1, stage-2, or stage-3 executable exists.**
 The three-byte source fragment kernel is a small component, not a self-hosted
 compiler. A Rust host test is not guest-language execution evidence.
 
