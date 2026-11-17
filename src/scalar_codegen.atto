@@ -1,11 +1,13 @@
 // Atto compiler seed: bounded ASCII infix -> Wasm instruction bytes.
+// Stage-0 portable spelling: `pub fnc` (LLVM scalar frontend does not
+// currently admit the `define pub fnc` alias).
 // NOT a complete compiler, native AOT proof, or self-hosted build.
 // Input grammar: digit op digit; operators: + - *.
 // Valid result range [-64, 63] for one-byte signed LEB128.
 // Packed output byte order: i64.const (0x42), immediate, end (0x0b).
 // Negative values represent compiler errors; never publish as code.
 
-define pub fnc ascii_digit_value(int ascii): int {
+pub fnc ascii_digit_value(int ascii): int {
     if ascii < 48 then
         return -1;
     fi
@@ -16,7 +18,7 @@ define pub fnc ascii_digit_value(int ascii): int {
 }
 
 // Returns 1: add, 2: subtract, 3: multiply, 0: unsupported.
-define pub fnc ascii_binary_opcode(int ascii): int {
+pub fnc ascii_binary_opcode(int ascii): int {
     if ascii eq 43 then
         return 1;
     fi
@@ -32,7 +34,7 @@ define pub fnc ascii_binary_opcode(int ascii): int {
 // This helper is public in the bootstrap seed. Validate operands even when
 // called directly, not only when reached via compile_ascii_triplet.
 // Without these guards, extreme caller-supplied i64 values could overflow.
-define pub fnc evaluate_digit_binary(int left, int opcode, int right): int {
+pub fnc evaluate_digit_binary(int left, int opcode, int right): int {
     if left < 0 then
         return -1000;
     fi
@@ -59,7 +61,7 @@ define pub fnc evaluate_digit_binary(int left, int opcode, int right): int {
 
 // Converts a signed i64 integer [-64,63] to its one-byte SLEB128.
 // -1001 signals an unsupported immediate size.
-define pub fnc signed_leb128_byte(int value): int {
+pub fnc signed_leb128_byte(int value): int {
     if value < -64 then
         return -1001;
     fi
@@ -75,7 +77,7 @@ define pub fnc signed_leb128_byte(int value): int {
 // 0x42=66 (i64.const), 0x0b=11 (end).
 // Error codes: -1 bad lhs, -2 bad rhs, -3 bad op, -4 bad
 // evaluator state, -5/-6 constant outside the one-byte SLEB range.
-define pub fnc compile_ascii_triplet(int lhs_ascii, int op_ascii, int rhs_ascii): int {
+pub fnc compile_ascii_triplet(int lhs_ascii, int op_ascii, int rhs_ascii): int {
     val lhs: int = ascii_digit_value(lhs_ascii);
     if lhs < 0 then
         return -1;
@@ -113,6 +115,6 @@ define pub fnc compile_ascii_triplet(int lhs_ascii, int op_ascii, int rhs_ascii)
 // Stage-0 native smoke entry: "6*7" compiles to 731714.
 // The subtraction makes exit status 42 on POSIX, if compiled and run.
 // A passing exit code alone does NOT prove general source compilation.
-define pub fnc main(): int {
+pub fnc main(): int {
     return compile_ascii_triplet(54, 42, 55) - 731672;
 }
