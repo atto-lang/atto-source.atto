@@ -20,7 +20,7 @@ Atto-compiled guest-language evidence. Their status must be recorded separately.
 
 | Gate | Required real execution and evidence | Current |
 | --- | --- | --- |
-| G0 source | Atto-written kernel parses/lowers multiple real inputs under selected native stage-0 compiler | NOT EXECUTED |
+| G0 source | Atto-written kernel parses/lowers multiple real inputs under selected native stage-0 compiler | **VERIFIED for restricted scalar seed, pinned LLVM snapshot** — [executed evidence](STAGE0_NATIVE_EVIDENCE.md) |
 | G1 compiler | Stage-1 executable reads external Atto files, lexes/parses/types them and emits runnable LLVM IR or native object artifacts | NOT IMPLEMENTED |
 | G2 rebuild | Stage-1 compiles **its entire own source module graph** to a working Stage-2 executable | NOT IMPLEMENTED |
 | G3 fixed point | Stage-2 repeats the build to Stage 3; compare canonical artifacts and runtime behavior | NOT IMPLEMENTED |
