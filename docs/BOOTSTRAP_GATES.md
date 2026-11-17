@@ -13,7 +13,8 @@ Tracking RFC: https://github.com/atto-lang/atto-spec/issues/70
 
 **As of this seed in the dedicated repository: no stage-1, stage-2, or stage-3 executable exists.**
 The three-byte source fragment kernel is a small component, not a self-hosted
-compiler. A Rust host test is not guest-language execution evidence.
+compiler. Neither Rust host-model tests nor Node-generated WebAssembly execution are
+Atto-compiled guest-language evidence. Their status must be recorded separately.
 
 ## Mandatory bootstrap progression
 
@@ -41,6 +42,17 @@ syntactically parsed `.atto` file cannot satisfy G1 or G2.
 7. LLVM IR emission, target ABI, reproducible linking, and controlled I/O.
 8. Compiler CLI in AttoLang, complete Atto-authored source dependency graph.
 9. Native/CI bootstrap Stage 1 → Stage 2 → Stage 3, independent oracles.
+
+## Host-only verification floor
+
+- Execute `rustc --edition 2021 --test tests/scalar_seed_model.rs` to check
+  overflow-safe digit admission, 300 exhaustive expression combinations and
+  stable negative diagnostic codes.
+- Execute `node --test tests/scalar_seed_wasm.test.mjs` to run the 300-case
+  host-generated Wasm matrix in a real WebAssembly engine.
+- Validate committed source blob SHA against any private carrier copy.
+- Neither test executes the `.atto` compiler; both are explicitly insufficient
+  for G0 guest admission, and much less G1–G3 self-hosting.
 
 ## Non-negotiable testing
 
