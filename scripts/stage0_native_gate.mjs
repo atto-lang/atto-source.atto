@@ -25,8 +25,8 @@ function check(r, purpose, expected = 0) {
   }
 }
 function sourceWithoutMain(text) {
-  const m = /\ndefine pub fnc main\(\): int \{[\s\S]*?\n\}\s*$/.exec(text);
-  if (!m || !text.includes('define pub fnc compile_ascii_triplet(')) fail('Seed source shape changed; review harness');
+  const m = /\n(?:define )?pub fnc main\(\): int \{[\s\S]*?\n\}\s*$/.exec(text);
+  if (!m || !text.includes('pub fnc compile_ascii_triplet(')) fail('Seed source shape changed; review harness');
   return text.slice(0, m.index).trimEnd() + '\n';
 }
 function expected(left, op, right) {
