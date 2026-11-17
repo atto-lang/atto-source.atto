@@ -5,12 +5,14 @@ on:
     paths:
       - "src/**"
       - "tests/**"
+      - "scripts/**"
       - "docs/**"
       - ".github/workflows/atto-self-hosted-seed.yml"
   push:
     paths:
       - "src/**"
       - "tests/**"
+      - "scripts/**"
       - "docs/**"
       - ".github/workflows/atto-self-hosted-seed.yml"
   workflow_dispatch:
@@ -64,6 +66,31 @@ jobs:
           set -euo pipefail
           node --test tests/scalar_seed_wasm.test.mjs
 
-# Both jobs test independent HOST reference models. They do NOT compile
+
+  stage0-runner-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out immutable submitted commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify source identity and Node version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          git rev-parse 'HEAD^{tree}'
+          node --version
+      - name: Verify Stage-0 runner fails closed without a real pinned compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/stage0_native_gate.mjs
+          node --test scripts/stage0_native_gate.test.mjs
+
+
+# These jobs verify HOST reference models and runner guards. They do NOT compile
 # src/scalar_codegen.atto or certify any stage of Atto self-hosting.
 # A run marked failure with steps=[] is NOT executed test evidence.
