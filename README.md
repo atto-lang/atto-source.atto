@@ -21,8 +21,11 @@ No runtime/JIT fallback from a non-Atto compiler may be hidden in a release labe
 ```text
 src/scalar_codegen.atto       Atto-written, bounded code emission kernel
 tests/scalar_seed_model.rs    Host-only Rust reference (NOT an Atto guest test)
+tests/scalar_seed_wasm.test.mjs  Real Wasm VM execution from JS HOST model
+
 tests/README.md              How to run and interpret the host test
 docs/BOOTSTRAP_GATES.md      Stage-0/1/2/3 milestone and evidence policy
+docs/SCALAR_SEED_CONTRACT.md  Exact scalar fragment ABI and diagnostics
 .github/workflows/           Host-model test workflow (not a self-hosting proof)
 ```
 
@@ -51,8 +54,9 @@ rustc --edition 2021 --test tests/scalar_seed_model.rs -o /tmp/atto-seed-model
 ```
 
 These test the arithmetic and byte-encoding *model only*, not the Atto source.
-Their success must never be reported as self-hosting, frontend parity, or
-guest execution evidence.
+Run `node --test tests/scalar_seed_wasm.test.mjs` to validate all 300 digit/operator pairs using independently generated and actually executed WebAssembly modules. These are still host-generated Wasm guests, **not Atto-compiled guests**.
+
+Neither test may be reported as self-hosting, Atto frontend parity, or actual `.atto` guest execution evidence.
 
 ## Promotion criteria
 
@@ -67,8 +71,7 @@ Unsupported features must fail closed; no pass may be inferred from skipped test
 
 The seed files were migrated by exact Git blob SHA from
 [atto-source.llvm PR #26](https://github.com/atto-lang/atto-source.llvm/pull/26).
-That older staging PR is superseded once this dedicated-repository proposal
-is accepted. This preserves file content; it is **not a cross-repository
+That older staging PR was closed without merging once the dedicated repository was established. This preserves file content; it is **not a cross-repository
 commit-history transfer**.
 
 Prefer canonical `.atto` source and snake_case names. New cross-backend
