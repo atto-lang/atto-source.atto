@@ -7,6 +7,7 @@ on:
       - "tests/**"
       - "scripts/**"
       - "docs/**"
+      - "contracts/**"
       - ".github/workflows/atto-self-hosted-seed.yml"
   push:
     paths:
@@ -14,6 +15,7 @@ on:
       - "tests/**"
       - "scripts/**"
       - "docs/**"
+      - "contracts/**"
       - ".github/workflows/atto-self-hosted-seed.yml"
   workflow_dispatch:
 
@@ -89,6 +91,7 @@ jobs:
           set -euo pipefail
           node --check scripts/stage0_native_gate.mjs
           node --test scripts/stage0_native_gate.test.mjs
+          node --test tests/hybrid-actor-memory-bootstrap-v1.test.mjs
 
 
 # These jobs verify HOST reference models and runner guards. They do NOT compile
