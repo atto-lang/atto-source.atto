@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "contract": "atto.hybrid-actor-memory.selfhost-bootstrap.v1",
+  "repo": "atto-lang/atto-source.atto",
+  "bootstrap_pr": 1,
+  "status": "STAGE0_SCALAR_GUEST_ONLY",
+  "self_hosted": false,
+  "stage0": {
+    "source_path": "src/scalar_codegen.atto",
+    "git_blob_sha": "b6f5fe8cddc6728a7c89cd4f6d48682aacafa991",
+    "evidence_url": "https://github.com/atto-co/atto-ci/actions/runs/44174328233",
+    "executed_native_scalar_tests": 324,
+    "evidence_scope": "PINNED_LLVM_COMPILER_SCALAR_ATTO_GUEST_NOT_SELF_HOSTED"
+  },
+  "canonical_guest_fixture": {
+    "repo": "atto-lang/atto-platform-conformance",
+    "pr": 461,
+    "positive_git_blob": "d472cccb3da24ee8f9fed44f99c1c7742d3240de",
+    "negative_git_blob": "7544665f302167451fdc47ce11f5f108f703b7ed",
+    "positive": "NOT_EXECUTED",
+    "negative": "NOT_EXECUTED",
+    "guest_receipt": null
+  },
+  "memory_capabilities": {
+    "actor_private_ref32_heap": "UNSUPPORTED",
+    "actor_generation_and_incarnation": "UNSUPPORTED",
+    "native_guest_nominal_node_graph": "UNSUPPORTED",
+    "actor_memory_quota_and_peak_growth": "UNSUPPORTED",
+    "cross_actor_take_and_share": "UNSUPPORTED",
+    "self_hosted_compiler_stage1": "UNSUPPORTED",
+    "self_hosted_compiler_stage2": "UNSUPPORTED",
+    "self_hosted_compiler_stage3": "UNSUPPORTED",
+    "hard_realtime_prefault": "UNSUPPORTED",
+    "wide_handle64": "UNSUPPORTED",
+    "capability128": "UNSUPPORTED"
+  },
+  "requirements": [
+    "Do not infer memory from Stage-0 scalar native compilation.",
+    "Do not treat the LLVM native compiler used by Stage-0 as a self-hosted Atto compiler.",
+    "Reject unimplemented actor heap guests without producing a compiler artifact.",
+    "Require exact source, target ABI, native guest success and assertion-failure cleanup evidence before updating any feature to PASSED."
+  ]
+}
