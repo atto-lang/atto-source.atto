@@ -1,0 +1,21 @@
+// Self-hosted Atto compiler's own freestanding integer math source.
+// A trusted bootstrap compiler must verify the compiled guest before use.
+define module math as
+  pub fnc min_int(int left, int right): int {
+    if left < right; do return left; fi
+    return right;
+  }
+  pub fnc max_int(int left, int right): int {
+    if left > right; do return left; fi
+    return right;
+  }
+  pub fnc signum_int(int n): int {
+    if n < 0; do return -1; fi
+    if n > 0; do return 1; fi
+    return 0;
+  }
+  pub fnc contains_closed_int(int value, int lo, int hi): bool {
+    if lo > hi; do return false; fi
+    return value >= lo && value <= hi;
+  }
+end

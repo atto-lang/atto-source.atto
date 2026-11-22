@@ -1,0 +1,10 @@
+// Requires future Atto-in-Atto Stage 0 compile/link; NOT_EXECUTED.
+import module math from "atto.core/math";
+import module hash from "atto.core/hash";
+import module cell from "atto.core/cell";
+pub fnc main(): int {
+  if math.max_int(5, 42) != 42; do return 1; fi
+  if hash.two_bytes(42, 7) != 17646; do return 2; fi
+  if cell.can_borrow_write(1, false); do return 3; fi
+  return 42;
+}
