@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PINS = {
   "math": "bc26640a826c8f397702ea2cb96f5102214d5032",
   "hash": "3dc146f2df8f0450cca8fea8f7f77ea8bd8766d3",
-  "cell": "c6f1fbe5cccbf57535832ba1245713431fc2374e"
+  "cell": "a00ed65daedb05857c9351989a6dc9a7453f60c8"
 }
 
 class CoreBootstrapSource(unittest.TestCase):
