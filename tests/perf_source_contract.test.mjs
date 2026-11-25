@@ -19,20 +19,20 @@ test('disabled clock path returns without monotonic clock access',()=>{
   assert.ok(duration.indexOf('if started_ns <= 0')>=0 && duration.indexOf('if started_ns <= 0')<duration.indexOf('process.monotonic_ns()'));
   assert.match(duration,/finished_ns < started_ns/);
 });
-test('sample decision rejects invalid keys and divisors before overflow-safe integer division',()=>{
+test('sample decision rejects invalid keys and divisors before canonical integer remainder',()=>{
  const sample=no_comments(perf.split('pub fnc should_sample')[1]);
  const guard=sample.indexOf('if sample_key < 0 || every_n < 1 || every_n > 65536');
- const division=sample.indexOf('(sample_key / every_n) * every_n == sample_key');
- assert.ok(guard>=0 && division>guard);
+ const remainder=sample.indexOf('Integer.rem(sample_key, every_n) eq 0');
+ assert.ok(guard>=0 && remainder>guard);
  assert.match(sample,/if sample_key < 0 \|\| every_n < 1 \|\| every_n > 65536; do\s+return false;\s+fi/);
- assert.doesNotMatch(sample,/%/);
+ assert.doesNotMatch(sample,/%|sample_key\s*\/\s*every_n/);
 });
 test('independent signed-i64 sampling model agrees with divisibility oracle at bounds',()=>{
  const max=9223372036854775807n;
- const sample=(k,n)=>k>=0n && n>=1n && n<=65536n && (k/n)*n===k;
+ const sample=(k,n)=>k>=0n && n>=1n && n<=65536n && k%n===0n;
  for(const k of [-1n,0n,1n,2n,65535n,65536n,max-1n,max]){
   for(const n of [-1n,0n,1n,2n,3n,65535n,65536n,65537n]){
-   const expected=k>=0n && n>=1n && n<=65536n && k%n===0n;
+   const expected=k>=0n && n>=1n && n<=65536n && (k/n)*n===k;
    assert.equal(sample(k,n),expected,`key=${k} divisor=${n}`);
   }
  }

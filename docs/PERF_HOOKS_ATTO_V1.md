@@ -53,3 +53,5 @@ runner steps, positive/negative compiled guest fixtures, disabled-path
 allocation/clock evidence, overflow/ownership tests and a linked program-
 specific strict AOT artifact (or closed Wasm module). Use the shared
 versioned contract but keep library source independently maintained.
+
+The pure sampling helper uses guarded `Integer.rem`, not `/` (floating division) or reserved `%`. The external bootstrap guest covers only the pure policy; the trace-buffer constructor, clock capability and instrumentation lowering require separate real compiler/runtime evidence.

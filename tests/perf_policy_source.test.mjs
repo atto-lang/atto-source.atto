@@ -12,12 +12,12 @@ test('five public pure Atto core policies are independently compiled candidates'
 test('no runtime capability, allocation or clock effect is present',()=>{
  assert.doesNotMatch(code,/process\.|stdio\.|import |malloc|new Array|\bnew\b|eval\(|spawn|await |thread/);
 });
-test('sampling rejects zero divisors then performs overflow-safe integer math',()=>{
+test('sampling rejects zero divisors then performs canonical integer remainder',()=>{
  const sample=body('perf_should_sample','perf_duration_ns');
  assert.match(sample,/every_n < 1 \|\| every_n > 65536/);
- assert.ok(sample.indexOf('every_n < 1')<sample.indexOf('sample_key / every_n'));
- assert.match(sample,/\(sample_key \/ every_n\) \* every_n == sample_key/);
- assert.doesNotMatch(sample,/%/);
+ assert.ok(sample.indexOf('every_n < 1')<sample.indexOf('Integer.rem(sample_key, every_n)'));
+ assert.match(sample,/Integer\.rem\(sample_key, every_n\) eq 0/);
+ assert.doesNotMatch(sample,/%|sample_key\s*\/\s*every_n/);
 });
 test('full/disabled buffers never record and count saturates',()=>{
  const cap=body('perf_can_record','perf_next_dropped');
