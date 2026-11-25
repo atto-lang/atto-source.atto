@@ -1,0 +1,35 @@
+name: Atto incremental design reference (NOT compiler)
+on:
+  pull_request:
+    paths:
+      - 'contracts/incremental-compilation-rollout-v1.json'
+      - 'docs/INCREMENTAL_COMPILATION_V1.md'
+      - 'tests/test_incremental_bootstrap_design.py'
+      - '.github/workflows/incremental-bootstrap-design.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  design-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: atto-lang/atto-common-source
+          ref: 8b0b5bc2371fd73e71b6967d64b13abc8f98b7fc
+          path: shared-reference
+          persist-credentials: false
+      - name: Verify immutable references and exercise host-only planner
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(git -C shared-reference rev-parse HEAD)" = "8b0b5bc2371fd73e71b6967d64b13abc8f98b7fc"
+          python3 -I tests/test_incremental_bootstrap_design.py shared-reference
+          echo 'REFERENCE_ONLY; real compiler guest NOT_EXECUTED' >> "$GITHUB_STEP_SUMMARY"

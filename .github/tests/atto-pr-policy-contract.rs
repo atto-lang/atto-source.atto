@@ -10,39 +10,37 @@ fn block() -> String {
     assert!(start < end, "policy marker order");
     source[start..end].to_string()
 }
-#[test] fn either_human_once_and_persistent() {
+#[test] fn delegate_to_canonical_policy_without_stale_local_quorum() {
     let s = block();
-    for required in ["either", "the1mills", "ORESoftware", "2148448", "11139560",
-                     "Never require both", "do **not** demand another human approval",
-                     "No self-approval", "CHANGES_REQUESTED"] {
-        assert!(s.contains(required), "human policy missing: {required}");
+    for required in ["sole organization-level review", "does not independently impose",
+                     "either", "the1mills", "ORESoftware", "2148448", "11139560",
+                     "without self-approval", "effective GitHub protections",
+                     "remains a central governance decision", "not activated locally"] {
+        assert!(s.contains(required), "missing delegation safeguard: {required}");
     }
-    assert!(!s.contains("fresh post-boundary reviews from all four"));
-}
-#[test] fn ready_cycle_review_lanes() {
-    let s = block();
-    for required in ["Ready age 0–72h", "Ready age 72–240h", "Ready age ≥240h",
-                     "OpenAI", "Anthropic", "mandatory competing/overlapping-PR audit",
-                     "latest genuine Draft→Ready event", "resets AI freshness"] {
-        assert!(s.contains(required), "ready-cycle policy missing: {required}");
+    for stale in ["Ready age 0–72h", "Ready age 72–240h", "Ready age ≥240h",
+                  "fresh post-boundary reviews from all four"] {
+        assert!(!s.contains(stale), "local policy drift: {stale}");
     }
 }
 #[test] fn holds_and_real_ci() {
     let s = block();
     for required in ["keep-as-draft", "keep-draft", "not-ready",
                      "passing exact-head material CI", "verified current labels",
-                     "automatic promotion", "automated merging"] {
-        assert!(s.contains(required), "draft policy missing: {required}");
+                     "mandatory competing/overlapping-PR audit", "CHANGES_REQUESTED"] {
+        assert!(s.contains(required), "missing safety gate: {required}");
     }
 }
 #[test] fn canonical_source_and_private_code_safety() {
     let s = block();
     for required in ["https://github.com/atto-lang/.github/blob/main/AGENTS.md",
-                     "CODEOWNERS", "GitHub protections",
-                     "Approval policy text is not merge authorization",
-                     "authorized private SHA-verified Git-tree carrier"] {
+                     "CODEOWNERS", "GitHub protections", "Approval policy text is not merge authorization",
+                     "authorized private SHA-verified Git-tree carrier", "Never forge reviews"] {
         assert!(s.contains(required), "safety policy missing: {required}");
     }
+    let source = fs::read_to_string("AGENTS.md").unwrap();
+    assert_eq!(source.matches("<!-- org-zero-step-ci-recovery:begin -->").count(), 1);
+    assert!(source.contains("Explicit export DENIED/unapproved"));
 }
 #[test] fn workflow_runs_on_exact_head_without_checkout_tokens() {
     let flow = fs::read_to_string(".github/workflows/atto-pr-policy-parity.yml")
