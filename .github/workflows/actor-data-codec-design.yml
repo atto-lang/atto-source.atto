@@ -1,0 +1,42 @@
+name: Atto codec design inventory (NOT security certification)
+on:
+  pull_request:
+    paths:
+      - 'docs/actor-data-codec-selection-v1.md'
+      - 'contracts/actor-data-codec-bootstrap-v1.json'
+      - 'tests/actor_data_codec_design.test.mjs'
+      - '.github/workflows/actor-data-codec-design.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  design:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: atto-lang/atto-spec
+          ref: 3eeb2ac1c42f9461eb7ab721b69762e8f530dc57
+          path: spec-reference
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: atto-lang/atto-platform-conformance
+          ref: e13228ea6be5a262a4bdc337df3ac87b819e2b33
+          path: conformance-reference
+          persist-credentials: false
+      - name: Verify immutable references and all unexecuted target statuses
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(git -C spec-reference rev-parse HEAD)" = "3eeb2ac1c42f9461eb7ab721b69762e8f530dc57"
+          test "$(git -C conformance-reference rev-parse HEAD)" = "e13228ea6be5a262a4bdc337df3ac87b819e2b33"
+          node tests/actor_data_codec_design.test.mjs conformance-reference/contracts/actor-data-codec-selection-v1.json spec-reference/architecture/actor-data-codec-selection-v1.md
+          echo 'DESIGN_ONLY; actual guest and independent security review NOT_EXECUTED'
