@@ -27,7 +27,7 @@ The suffixed forms are the **only canonical spelling for new Atto source**. Prev
 
 ## Backend note
 
-Repository currently contains no compiler frontend. This is a source-language contract only; implementation and executable evidence are pending.
+The bounded scalar Stage-0 seed is integrated (#1), but the general frontend and effect lowering do not exist yet. This is a source-language contract only; implementation and executable evidence are pending.
 
 ## Review and verification gates
 
@@ -35,3 +35,7 @@ Repository currently contains no compiler frontend. This is a source-language co
 - Verify positive parse, negative type/effect diagnostics, `Result` capture identity, panic escalation and supervisor CONTROL routing **only** on backends that genuinely implement these semantics.
 - Separate lexer/parser tests, static source checks, host simulations, and actual AOT/Wasm guest execution. A missing or zero-step execution is **NOT_EXECUTED**, not a pass.
 - Before promotion or merge, reconcile overlapping in-flight feature work (notably `atto-source.rs` #327/#331, `atto-source.llvm` #75, `atto-source.net` #117, `atto-source.wasm` #51, `atto-source.java` #67), and obtain exact-head CI and required independent approvals.
+
+## Pinned proposal and reference checks
+
+The spelling proposal is owned by [atto-spec#146](https://github.com/atto-lang/atto-spec/pull/146), currently pinned for reference testing at `a5e08d47100778159a21ace627cd98ed0b537c3d`. This is a proposal, not a merged normative spec. Execute its 18 source-only lexical vectors and verify the backend inventory, while preserving the explicit NOT_EXECUTED status for production parsing and guest semantics. The staged assertion module (#19) uses bare migration spellings; those remain admitted by the proposal, and new sources should use bang forms once the compiler/formatter rollout permits. No alternative exceptional-control ABI is introduced here.

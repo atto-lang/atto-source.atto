@@ -1,0 +1,35 @@
+name: Atto exception-bang proposal reference (NOT compiler)
+on:
+  pull_request:
+    paths:
+      - 'contracts/bang-exception-keywords-v1/**'
+      - 'tests/exception-bang-bootstrap.test.mjs'
+      - '.github/workflows/exception-bang-bootstrap.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  proposal-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: atto-lang/atto-spec
+          ref: a5e08d47100778159a21ace627cd98ed0b537c3d
+          path: spec-reference
+          persist-credentials: false
+      - name: Check exact source and test proposed lexical contract
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(git -C spec-reference rev-parse HEAD)" = "a5e08d47100778159a21ace627cd98ed0b537c3d"
+          node --test spec-reference/tests/exception-control-bang-spellings.test.mjs
+          node tests/exception-bang-bootstrap.test.mjs spec-reference/contracts/exception-control-bang/v1/cases.json
+          echo 'PROPOSAL_REFERENCE_ONLY; compiler and guest NOT_EXECUTED' >> "$GITHUB_STEP_SUMMARY"
