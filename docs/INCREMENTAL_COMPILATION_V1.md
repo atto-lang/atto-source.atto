@@ -2,7 +2,7 @@
 
 **Status: BOOTSTRAP / DESIGN ONLY — no implemented compiler or executable guest evidence.**
 
-This repository currently contains only bootstrap/documentation scaffolding, not an executable self-hosted AttoLang compiler. Do not mark any source compilation cache or guest evidence implemented.
+The bounded scalar Stage-0 seed is integrated (#1), but no general executable self-hosted AttoLang compiler exists. Do not mark any source compilation cache or guest evidence implemented.
 
 Shared goal: [atto-common-source PR #133](https://github.com/atto-lang/atto-common-source/pull/133), [atto-spec PR #213](https://github.com/atto-lang/atto-spec/pull/213), [cross-backend tracker #53](https://github.com/atto-lang/atto-compilers-parity-testing/issues/53).
 
@@ -19,3 +19,7 @@ A package may own many namespaces; an explicit namespace may span multiple verif
 5. Mark `NOT_IMPLEMENTED`/ `NOT_EXECUTED` until real source compiler and nonzero-step CI receipts exist. No private source transfer to unapproved CI carrier.
 
 This PR is a future-compatibility checklist, not an implementation or compiler completion claim.
+
+## Host-only reference acceptance
+
+The shared planner contract [#133](https://github.com/atto-lang/atto-common-source/pull/133) is merged. The workflow pins its public commit `8b0b5bc2371fd73e71b6967d64b13abc8f98b7fc` and executes the backend's 12-file/3-namespace reference scenario, including independent unnamespaced units, ABI invalidation and missing-interface/import rejection. This tests the proposed build contract only; it does not implement incremental mode or authorize cache reuse. The language-level spec proposal #213 remains outstanding.
