@@ -1,3 +1,5 @@
+> **AI agent instructions (organization-wide):** Before working on code, issues, or pull requests, read and follow the [organization `AGENTS.md`](https://github.com/atto-lang/.github/blob/main/AGENTS.md), including its **merge-first stealth-development policy**. Honor any repository-local `AGENTS.md`, explicit holds, and GitHub-enforced rules.
+
 # atto-source.atto — AttoLang self-hosted compiler
 
 The dedicated repository for a compiler implemented **in AttoLang itself**.
@@ -79,3 +81,11 @@ commit-history transfer**.
 
 Prefer canonical `.atto` source and snake_case names. New cross-backend
 semantics belong in [atto-spec](https://github.com/atto-lang/atto-spec).
+
+## Canonical AttoLang naming and specification
+
+This is the canonical [atto-source.atto](https://github.com/atto-lang/atto-source.atto) home. Use `.atto` source, `atto-*` names, and `https://github.com/atto-lang/atto-source.atto.git` for Git remotes. Historical naming is not part of current usage documentation.
+
+- **Normative contract:** [atto-spec](https://github.com/atto-lang/atto-spec), including the versioned ownership, borrowing, equality, lifetime, effects and module-constant contracts. New implementation work must use these specs, not old backend examples.
+- **Guest parity:** [atto-platform-conformance](https://github.com/atto-lang/atto-platform-conformance) and [atto-compilers-parity-testing](https://github.com/atto-lang/atto-compilers-parity-testing). Pin the exact source/tree and toolchain; distinguish passed, failed, unsupported and not-executed outcomes.
+- **Shared and target requirements:** [atto-common-source](https://github.com/atto-lang/atto-common-source) and [atto-target-profiles](https://github.com/atto-lang/atto-target-profiles). Parser-only acceptance and host-only tests do not prove guest execution.
