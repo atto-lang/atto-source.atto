@@ -1,0 +1,62 @@
+// External bootstrap guest for pure perf policy, not trace-buffer or AOT instrumentation parity.
+import module core from "../../core/perf_policy.atto";
+pub fnc main(): int {
+  if core.perf_should_sample(0, 1) neq true then
+    return 1;
+  fi
+  if core.perf_should_sample(0, 0) neq false then
+    return 2;
+  fi
+  if core.perf_should_sample(-1, 1) neq false then
+    return 3;
+  fi
+  if core.perf_should_sample(42, 7) neq true then
+    return 4;
+  fi
+  if core.perf_should_sample(43, 7) neq false then
+    return 5;
+  fi
+  if core.perf_should_sample(65536, 65536) neq true then
+    return 6;
+  fi
+  if core.perf_should_sample(65536, 65537) neq false then
+    return 7;
+  fi
+  if core.perf_should_sample(9223372036854775807, 1) neq true then
+    return 8;
+  fi
+  if core.perf_should_sample(9223372036854775807, 2) neq false then
+    return 9;
+  fi
+  if core.perf_should_sample(9223372036854775806, 2) neq true then
+    return 10;
+  fi
+  if core.perf_valid_probe(1) neq true then
+    return 11;
+  fi
+  if core.perf_valid_probe(0) neq false then
+    return 12;
+  fi
+  if core.perf_duration_ns(5, 3) neq 0 then
+    return 13;
+  fi
+  if core.perf_duration_ns(5, 8) neq 3 then
+    return 14;
+  fi
+  if core.perf_can_record(false, 0, 1) neq false then
+    return 15;
+  fi
+  if core.perf_can_record(true, 0, 1) neq true then
+    return 16;
+  fi
+  if core.perf_can_record(true, 1, 1) neq false then
+    return 17;
+  fi
+  if core.perf_next_dropped(2147483647) neq 2147483647 then
+    return 18;
+  fi
+  if core.perf_next_dropped(0) neq 1 then
+    return 19;
+  fi
+  return 42;
+}
