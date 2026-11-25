@@ -1,7 +1,7 @@
 // Real external bootstrap guest fixture; self-hosting is not implied.
-import module math from "atto.core/math";
-import module hash from "atto.core/hash";
-import module cell from "atto.core/cell";
+import module math from "../../library/atto.core/math.atto";
+import module hash from "../../library/atto.core/hash.atto";
+import module cell from "../../library/atto.core/cell.atto";
 pub fnc main(): int {
   if math.max_int(5, 42) neq 42 then
     return 1;
