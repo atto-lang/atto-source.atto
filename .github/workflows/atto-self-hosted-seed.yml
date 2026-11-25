@@ -1,0 +1,99 @@
+name: Atto self-hosted bootstrap seed (host-only models)
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/**"
+      - "docs/**"
+      - "contracts/**"
+      - ".github/workflows/atto-self-hosted-seed.yml"
+  push:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/**"
+      - "docs/**"
+      - "contracts/**"
+      - ".github/workflows/atto-self-hosted-seed.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out immutable submitted commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Print checked-out source identity and compiler version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          git rev-parse 'HEAD^{tree}'
+          rustc --version
+      - name: Execute Rust host-only exhaustive model
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustc --edition 2021 --test tests/scalar_seed_model.rs -o "$RUNNER_TEMP/atto-seed-model"
+          "$RUNNER_TEMP/atto-seed-model" --nocapture
+
+  wasm-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out immutable submitted commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Print checked-out source identity and Node version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          git rev-parse 'HEAD^{tree}'
+          node --version
+      - name: Execute real WebAssembly host-model vectors
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/scalar_seed_wasm.test.mjs
+
+
+  stage0-runner-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out immutable submitted commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify source identity and Node version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          git rev-parse 'HEAD^{tree}'
+          node --version
+      - name: Verify Stage-0 runner fails closed without a real pinned compiler
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check scripts/stage0_native_gate.mjs
+          node --test scripts/stage0_native_gate.test.mjs
+          node --test tests/hybrid-actor-memory-bootstrap-v1.test.mjs
+
+
+# These jobs verify HOST reference models and runner guards. They do NOT compile
+# src/scalar_codegen.atto or certify any stage of Atto self-hosting.
+# A run marked failure with steps=[] is NOT executed test evidence.
