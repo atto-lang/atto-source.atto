@@ -1,10 +1,100 @@
-// Requires future Atto-in-Atto Stage 0 compile/link; NOT_EXECUTED.
+// Real external bootstrap guest fixture; self-hosting is not implied.
 import module math from "atto.core/math";
 import module hash from "atto.core/hash";
 import module cell from "atto.core/cell";
 pub fnc main(): int {
-  if math.max_int(5, 42) != 42; do return 1; fi
-  if hash.two_bytes(42, 7) != 17646; do return 2; fi
-  if cell.can_borrow_write(1, false); do return 3; fi
+  if math.max_int(5, 42) neq 42 then
+    return 1;
+  fi
+  if math.min_int(-8, 42) neq -8 then
+    return 2;
+  fi
+  if math.signum_int(-9223372036854775807) neq -1 then
+    return 3;
+  fi
+  if math.signum_int(0) neq 0 then
+    return 4;
+  fi
+  if math.signum_int(9223372036854775807) neq 1 then
+    return 5;
+  fi
+  if math.contains_closed_int(4, 4, 4) neq true then
+    return 6;
+  fi
+  if math.contains_closed_int(4, 5, 4) neq false then
+    return 7;
+  fi
+  if hash.two_bytes(42, 7) neq 17646 then
+    return 8;
+  fi
+  if hash.initial_state() neq 17 then
+    return 9;
+  fi
+  if hash.step_byte(0, 255) neq 255 then
+    return 10;
+  fi
+  if hash.step_byte(1000000006, 255) neq 224 then
+    return 11;
+  fi
+  if hash.step_byte(1000000006, 0) neq 999999976 then
+    return 12;
+  fi
+  if hash.step_byte(-1, 0) neq -1 then
+    return 13;
+  fi
+  if hash.step_byte(1000000007, 0) neq -1 then
+    return 14;
+  fi
+  if hash.step_byte(0, 256) neq -1 then
+    return 15;
+  fi
+  if hash.step_byte(0, -1) neq -1 then
+    return 16;
+  fi
+  if hash.from_bool(true) neq 528 then
+    return 17;
+  fi
+  if hash.from_bool(false) neq 527 then
+    return 18;
+  fi
+  if cell.can_borrow_write(1, false) neq false then
+    return 19;
+  fi
+  if cell.can_borrow_write(0, false) neq true then
+    return 20;
+  fi
+  if cell.can_borrow_read(65535, false) neq false then
+    return 21;
+  fi
+  if cell.can_borrow_read(65534, false) neq true then
+    return 22;
+  fi
+  if cell.readers_after_acquire(65534, false) neq 65535 then
+    return 23;
+  fi
+  if cell.readers_after_acquire(65535, false) neq -1 then
+    return 24;
+  fi
+  if cell.readers_after_release(0, false) neq -1 then
+    return 25;
+  fi
+  if cell.readers_after_release(1, false) neq 0 then
+    return 26;
+  fi
+  if cell.valid_loan_state(1, true) neq false then
+    return 27;
+  fi
+  if cell.valid_loan_state(0, true) neq true then
+    return 28;
+  fi
+  if cell.can_owner_read(65535, false) neq true then
+    return 29;
+  fi
+  if cell.can_move_owner(1, false) neq false then
+    return 30;
+  fi
+  if cell.can_suspend_unpinned(0, false) neq true then
+    return 31;
+  fi
   return 42;
 }

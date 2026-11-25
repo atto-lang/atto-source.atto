@@ -7,9 +7,13 @@ define module hash as
     if state < 0 || state >= 1000000007; do return -1; fi
     if octet < 0 || octet > 255; do return -1; fi
     let int value = state * 31 + octet;
-    for (let int i = 0; i < 31; i = i + 1) {
-      if value >= 1000000007; do value = value - 1000000007; fi
-    }
+    // value < 32 * modulus; descending powers of two reduce in five
+    // bounded steps without division, loops or overflowing signed i64.
+    if value >= 16000000112; do value = value - 16000000112; fi
+    if value >= 8000000056; do value = value - 8000000056; fi
+    if value >= 4000000028; do value = value - 4000000028; fi
+    if value >= 2000000014; do value = value - 2000000014; fi
+    if value >= 1000000007; do value = value - 1000000007; fi
     return value;
   }
   pub fnc two_bytes(int a, int b): int {

@@ -6,7 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 PINS = {
   "math": "bc26640a826c8f397702ea2cb96f5102214d5032",
-  "hash": "3dc146f2df8f0450cca8fea8f7f77ea8bd8766d3",
+  "hash": "4454065b334952875b52e5c426927b14e68cd37c",
   "cell": "55a0a3c5a04b825fb597a9c66101ee44d2e584ed"
 }
 
@@ -30,12 +30,12 @@ class CoreBootstrapSource(unittest.TestCase):
 
     def test_portable_bounded_fold_reference(self):
         p = 1000000007
-        for state in [0,1,17,569,p-1]:
+        for state in sorted({0,1,17,569,p-1} | {v for k in range(1,32) for v in (k*p//31-1,k*p//31,k*p//31+1) if 0 <= v < p}):
             for byte in range(256):
                 candidate = state*31+byte
-                for _ in range(31):
-                    if candidate >= p:
-                        candidate -= p
+                for multiple in (16, 8, 4, 2, 1):
+                    if candidate >= multiple*p:
+                        candidate -= multiple*p
                 self.assertEqual(candidate,(state*31+byte)%p)
         self.assertEqual((17*31+42)*31+7,17646)
 
