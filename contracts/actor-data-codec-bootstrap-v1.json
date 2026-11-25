@@ -1,0 +1,11 @@
+{
+  "schema": "atto.bootstrap.actor-data-codec-design.v1",
+  "status": "DESIGN_ONLY_NOT_EXECUTED",
+  "runtime_enabled": false,
+  "compiler_guest_verified": false,
+  "security_review_complete": false,
+  "spec_commit": "3eeb2ac1c42f9461eb7ab721b69762e8f530dc57",
+  "conformance_commit": "e13228ea6be5a262a4bdc337df3ac87b819e2b33",
+  "default_proposed": "messagepack",
+  "allowed_runtime_profiles": []
+}

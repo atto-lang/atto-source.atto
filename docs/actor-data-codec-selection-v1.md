@@ -14,3 +14,7 @@ Status: DESIGN_ONLY_NOT_EXECUTED. Canonical proposal: https://github.com/atto-la
 - [ ] Integrate bounded MessagePack, then Protobuf and CBOR, optional FlatBuffers only after verifier/lifetime review. Explicitly diagnose unsupported profiles and targets; no simulated guest support.
 - [ ] Execute shared positive/negative .atto cases, golden vectors, cross-backend differential encode/decode, fuzz malformed input, forged CONTROL/ActorRef, downgrade, replay, stale generation, quota, cancellation and cleanup races; document target/toolchain and exact compiler/fixture/root tree.
 - [ ] Independent security review and exact-head material CI; host-only/source-only/zero-step = NOT_EXECUTED. No capability claim or promotion from this documentation alone.
+
+## Pinned draft inventory (non-authorizing)
+
+The machine-readable bootstrap ledger deliberately enables no runtime profiles, marks guest/security evidence false, and pins the currently open spec and conformance proposals at `3eeb2ac1c42f9461eb7ab721b69762e8f530dc57` and `e13228ea6be5a262a4bdc337df3ac87b819e2b33`. The exact-head CI guard verifies all 22 case and 11 target statuses remain NOT_EXECUTED and that downgrade, forged CONTROL, authorization, generation and rollback gates are preserved. This check is not an encoder, decoder, security review or approval to activate a codec. The implementation and independent security-review gates above remain mandatory.
