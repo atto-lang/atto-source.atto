@@ -1,5 +1,5 @@
 // External bootstrap guest for pure perf policy, not trace-buffer or AOT instrumentation parity.
-import module core from "perf_policy";
+import module core from "../../core/perf_policy.atto";
 pub fnc main(): int {
   if core.perf_should_sample(0, 1) neq true then
     return 1;
