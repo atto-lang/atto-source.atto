@@ -86,3 +86,19 @@ a separate C++20 compiler/runtime and Cranelift remains an independent
 native JIT backend. The Atto-authored compiler must not silently delegate
 semantic checks to Java/C++/Rust implementations in a release labeled
 self-hosted.
+
+## Checked unwrap compiler-proof seed (2026-11-26)
+
+The Atto-authored scalar kernel contains a pure normalized-fact decision
+function for the closed checked-unwrap optimization: select the payload on
+success, select a fallback only when the error is statically unobservable,
+or reject the optimization. Unknown family, tag, observation or closure
+facts must reject. A rejected optimization retains the original IR; it does
+not mean a guest semantic rejection. This is not an actual Option/Result
+compiler frontend, runtime Error ABI or self-hosting proof.
+
+The existing pinned Stage-0 native gate now includes 32 additional
+assertions for this compiler component. Require the new seed and gate Git
+blobs and the reviewed compiler artifact SHA-256 before running. Existing
+November 17 native receipts apply only to their original exact source.
+New native compiler execution is NOT_EXECUTED; no Stage-1 executable exists.
