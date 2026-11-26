@@ -33,6 +33,16 @@ for(const a of ranges)for(const n of [0n,1n,2n,16n,17n,MAX]){
  const result=!valid(a)||n<1n||n>16n?-1:Number(a[0]>=0n&&a[1]<n);
  calls.push(['prove_fixed_index('+[...a,n].map(literal).join(', ')+')',result]);
 }
+// Bounded slice half-open range oracle, using arbitrary-precision addition
+// independently of the kernel's subtract-after-bounds-check formulation.
+const sliceValues=[MIN,-1n,0n,1n,15n,16n,17n,MAX];
+const sliceExtents=[-1n,0n,1n,2n,16n,17n,MAX];
+const beforeSlices=calls.length;
+for(const extent of sliceExtents)for(const start of sliceValues)for(const count of sliceValues){
+ const want=extent<0n||extent>16n?-1:Number(start>=0n&&count>=0n&&start+count<=extent);
+ calls.push(['prove_fixed_slice('+[start,count,extent].map(literal).join(', ')+')',want]);
+}
+assert.equal(calls.length-beforeSlices,448);
 // Shared debit rows are point-interval obligations, NOT original guest lowering.
 // Prove each stage before evaluating the next, so cancellation and discarded
 // results never erase a failing intermediate. The Atto kernel returns only
@@ -81,5 +91,5 @@ try{
   ok(run(exe,[]),'actual proof kernel guest');
   passed+=chunk.length;console.log('ATTO_PROOF_GUEST',i,chunk.length,hash(readFileSync(input)),hash(readFileSync(exe)));
  }
- assert.equal(passed,1419);console.log('ATTO_PROOF_RESULT',JSON.stringify({passed,total:calls.length,stage:0,selfHosted:false,sharedDebitPointObligations:15,sourceBlob,compilerPin}));
+ assert.equal(passed,1867);console.log('ATTO_PROOF_RESULT',JSON.stringify({passed,total:calls.length,stage:0,selfHosted:false,sharedDebitPointObligations:15,fixedSliceObligations:448,sourceBlob,compilerPin}));
 }finally{rmSync(work,{recursive:true,force:true});}
