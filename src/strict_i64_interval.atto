@@ -1,0 +1,66 @@
+// Stage-0 Atto-authored, nonallocating interval admission kernel.
+// Returns 1 when the stated operation is proved safe, 0 if not, -1 for
+// malformed ranges. Not a parser, compiler CLI or self-hosting claim.
+pub fnc prove_i64_add(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    val max: int = 9223372036854775807;
+    val min: int = -9223372036854775807 - 1;
+    // Subtractions are safe because the corresponding sign is checked.
+    if bhi > 0 then
+        if ahi > max - bhi then
+            return 0;
+        fi
+    fi
+    if blo < 0 then
+        if alo < min - blo then
+            return 0;
+        fi
+    fi
+    return 1;
+}
+pub fnc prove_i64_div(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    if blo <= 0 then
+        if bhi >= 0 then
+            return 0;
+        fi
+    fi
+    val min: int = -9223372036854775807 - 1;
+    if alo eq min then
+        if blo <= -1 then
+            if bhi >= -1 then
+                return 0;
+            fi
+        fi
+    fi
+    return 1;
+}
+// Receiver length is a supplied proof fact, not a pointer or array identity.
+pub fnc prove_fixed_index(int lo, int hi, int length): int {
+    if lo > hi then
+        return -1;
+    fi
+    if length < 1 then
+        return -1;
+    fi
+    if length > 16 then
+        return -1;
+    fi
+    if lo < 0 then
+        return 0;
+    fi
+    if hi >= length then
+        return 0;
+    fi
+    return 1;
+}
