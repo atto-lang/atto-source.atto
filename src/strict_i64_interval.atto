@@ -87,10 +87,10 @@ pub fnc prove_i64_sub(int alo, int ahi, int blo, int bhi): int {
     fi
     return 1;
 }
-// Test one product using sign-aware quotients; never actually multiply
-// or evaluate MIN / -1. Truncation toward zero supplies the exact threshold.
+// Ordinary Atto int/int division is floating point. Use a bounded
+// signed doubling proof instead, retaining negative accumulators so MIN is
+// representable. Each arithmetic operation is guarded before evaluation.
 pub fnc prove_i64_mul_pair(int a, int b): int {
-    val max: int = 9223372036854775807;
     val min: int = -9223372036854775807 - 1;
     if a eq 0 then
         return 1;
@@ -98,27 +98,51 @@ pub fnc prove_i64_mul_pair(int a, int b): int {
     if b eq 0 then
         return 1;
     fi
-    if a > 0 then
-        if b > 0 then
-            if a > max / b then
-                return 0;
-            fi
-        else
-            if b < min / a then
-                return 0;
-            fi
+    if a eq min then
+        if b eq 1 then
+            return 1;
+        fi
+        return 0;
+    fi
+    if b eq min then
+        if a eq 1 then
+            return 1;
+        fi
+        return 0;
+    fi
+    let int term = a;
+    let int factor = b;
+    let int limit = min;
+    if a < 0 then
+        if b < 0 then
+            limit = -9223372036854775807;
         fi
     else
+        term = 0 - a;
         if b > 0 then
-            if a < min / b then
-                return 0;
-            fi
-        else
-            if a < max / b then
-                return 0;
-            fi
+            limit = -9223372036854775807;
         fi
     fi
+    if b < 0 then
+        factor = 0 - b;
+    fi
+    let int total = 0;
+    while factor > 0 {
+        val half: int = factor ashr 1;
+        if factor - half * 2 eq 1 then
+            if total < limit - term then
+                return 0;
+            fi
+            total = total + term;
+        fi
+        factor = half;
+        if factor > 0 then
+            if term < limit - term then
+                return 0;
+            fi
+            term = term + term;
+        fi
+    }
     return 1;
 }
 // A bilinear product over an integer rectangle attains its extrema at corners.
