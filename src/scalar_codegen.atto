@@ -112,6 +112,66 @@ pub fnc compile_ascii_triplet(int lhs_ascii, int op_ascii, int rhs_ascii): int {
     return 66 + immediate * 256 + 11 * 65536;
 }
 
+// Bounded Stage-0 quantity admission over already resolved unit IDs.
+// 1=Second, 2=Millis, 3=Meter, 4=Second alias, 5=Millis alias.
+// Not a declaration parser: these IDs are fixed bootstrap metadata.
+// Only equal dimension AND equal scale may be erased by a ratio.
+pub fnc quantity_seed_dimension(int unit_id): int {
+    if unit_id eq 1 then return 1; fi
+    if unit_id eq 2 then return 1; fi
+    if unit_id eq 3 then return 2; fi
+    if unit_id eq 4 then return 1; fi
+    if unit_id eq 5 then return 1; fi
+    return 0;
+}
+
+pub fnc quantity_seed_scale(int unit_id): int {
+    if unit_id eq 1 then return 1; fi
+    if unit_id eq 2 then return 1000; fi
+    if unit_id eq 3 then return 1; fi
+    if unit_id eq 4 then return 1; fi
+    if unit_id eq 5 then return 1000; fi
+    return 0;
+}
+
+// No unbounded loop or general signed division is needed for the
+// single-digit seed. Each multiplication is bounded by 9*9.
+pub fnc quantity_seed_digit_ratio(int left, int right): int {
+    if left < 0 then return -4; fi
+    if left > 9 then return -4; fi
+    if right < 1 then return -4; fi
+    if right > 9 then return -4; fi
+    if left < right then return 0; fi
+    if left < right * 2 then return 1; fi
+    if left < right * 3 then return 2; fi
+    if left < right * 4 then return 3; fi
+    if left < right * 5 then return 4; fi
+    if left < right * 6 then return 5; fi
+    if left < right * 7 then return 6; fi
+    if left < right * 8 then return 7; fi
+    if left < right * 9 then return 8; fi
+    return 9;
+}
+
+// Negative result = no emitted instruction fragment.
+// -7 unknown unit, -8 dimension mismatch, -9 residual scale, -10 zero divisor.
+pub fnc compile_quantity_digit_ratio(int lhs_ascii, int lhs_unit, int rhs_ascii, int rhs_unit): int {
+    val lhs: int = ascii_digit_value(lhs_ascii);
+    if lhs < 0 then return -1; fi
+    val rhs: int = ascii_digit_value(rhs_ascii);
+    if rhs < 0 then return -2; fi
+    val left_dim: int = quantity_seed_dimension(lhs_unit);
+    val right_dim: int = quantity_seed_dimension(rhs_unit);
+    if left_dim eq 0 then return -7; fi
+    if right_dim eq 0 then return -7; fi
+    if left_dim neq right_dim then return -8; fi
+    if quantity_seed_scale(lhs_unit) neq quantity_seed_scale(rhs_unit) then return -9; fi
+    if rhs eq 0 then return -10; fi
+    val result: int = quantity_seed_digit_ratio(lhs, rhs);
+    if result < 0 then return -4; fi
+    return 66 + signed_leb128_byte(result) * 256 + 11 * 65536;
+}
+
 // Stage-0 native smoke entry: "6*7" compiles to 731714.
 // The subtraction makes exit status 42 on POSIX, if compiled and run.
 // A passing exit code alone does NOT prove general source compilation.

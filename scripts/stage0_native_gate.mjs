@@ -69,6 +69,25 @@ function matrix() {
     ['compile_ascii_triplet(9223372036854775807, 43, 49)', -1],
     ['compile_ascii_triplet(49, 43, -9223372036854775807)', -2]
   );
+  // Exact ABI matrix: 5 nominal unit IDs and every ASCII digit pair.
+  if(options['quantity-seed']==='1'){
+  const dimensions=[0,1,1,2,1,1],scales=[0,1,1000,1,1,1000];
+  for(let a=0;a<=9;a++)for(let b=0;b<=9;b++)for(let u=1;u<=5;u++)for(let v=1;v<=5;v++){
+    const result=dimensions[u]!==dimensions[v]?-8:scales[u]!==scales[v]?-9:b===0?-10:
+      66+Math.floor(a/b)*256+11*65536;
+    checks.push([`compile_quantity_digit_ratio(${a+48}, ${u}, ${b+48}, ${v})`,result]);
+  }
+  checks.push(
+    ['compile_quantity_digit_ratio(47, 1, 49, 1)',-1],
+    ['compile_quantity_digit_ratio(49, 1, 58, 1)',-2],
+    ['compile_quantity_digit_ratio(49, 0, 48, 1)',-7],
+    ['compile_quantity_digit_ratio(49, 1, 48, 9223372036854775807)',-7],
+    ['compile_quantity_digit_ratio(49, -9223372036854775807, 49, 1)',-7],
+    ['quantity_seed_digit_ratio(9223372036854775807, 1)',-4],
+    ['quantity_seed_digit_ratio(1, -9223372036854775807)',-4],
+    ['quantity_seed_digit_ratio(1, 0)',-4]
+  );
+  }
   return checks;
 }
 function runNativeGate() {

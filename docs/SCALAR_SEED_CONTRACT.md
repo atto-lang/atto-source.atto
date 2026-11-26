@@ -60,3 +60,7 @@ linking. Extending the grammar requires a versioned follow-up and new tests.
 - A stage-0 test alone does not establish a Stage-1 self-hosted compiler. See `BOOTSTRAP_GATES.md`.
 
 Never interpret a missing runner, `steps=[]`, a host-only test or a constant `main()==42` as a self-hosting proof.
+
+## Bounded quantity-ratio seed (experimental)
+
+`compile_quantity_digit_ratio(lhs_ascii, lhs_unit, rhs_ascii, rhs_unit)` admits two digits and already resolved fixed unit IDs (1 Second, 2 Millis, 3 Meter, 4 Second alias, 5 Millis alias). It rejects unknown IDs (-7), nominal mismatch (-8), residual scale (-9), and zero divisor (-10), in that order after the original digit checks. Admitted positive-digit ratios truncate toward zero and emit the existing three-byte instruction fragment. This is a bounded **Atto-authored component**, not a general quantity parser, unit linker, self-hosted compiler, dynamic unit conversion or full 151-case parity claim. Optional real native gate flag `--quantity-seed=1` adds 2,500 unit/digit combinations and eight adversarial helper inputs to the original matrix.
