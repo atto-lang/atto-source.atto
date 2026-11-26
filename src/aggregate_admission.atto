@@ -36,6 +36,10 @@ pub fnc admit_aggregate_map(int target, int item, int key_type, int expected_key
     if expected_key_type > 4 then return -3; fi
     if key_type neq expected_key_type then return -3; fi
     if key_proof neq 1 then return -6; fi
+    // The catch-all tag cannot prove that two arbitrary nominal types
+    // are identical. Until the resolver supplies exact type identities,
+    // refuse Map insertion rather than equating two unrelated types.
+    if key_type eq 4 then return -7; fi
     return 0;
 }
 
