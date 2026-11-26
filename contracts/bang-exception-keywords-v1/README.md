@@ -39,3 +39,7 @@ The bounded scalar Stage-0 seed is integrated (#1), but the general frontend and
 ## Pinned proposal and reference checks
 
 The spelling proposal is owned by [atto-spec#146](https://github.com/atto-lang/atto-spec/pull/146), currently pinned for reference testing at `a5e08d47100778159a21ace627cd98ed0b537c3d`. This is a proposal, not a merged normative spec. Execute its 18 source-only lexical vectors and verify the backend inventory, while preserving the explicit NOT_EXECUTED status for production parsing and guest semantics. The staged assertion module (#19) uses bare migration spellings; those remain admitted by the proposal, and new sources should use bang forms once the compiler/formatter rollout permits. No alternative exceptional-control ABI is introduced here.
+
+## Current separator target (atto-spec #244)
+
+The exact shared 176-vector corpus is pinned to spec commit `b6845ec5e022eecaa805e646e894e773d52212fe`, Git blob `09bd72682424d6669134e3ee126cf9a2d8f08da1`. All 16 keyword spellings (including `move!` and `copy!!`) require immediate ASCII whitespace after the complete suffix. Compact spellings, a comment alone, non-ASCII whitespace, and EOF are rejected targets. This supersedes the older lexical examples where incompatible. The corpus gate validates source data only; compiler admission and guest execution remain NOT_EXECUTED. No runtime or exception capability is enabled.
