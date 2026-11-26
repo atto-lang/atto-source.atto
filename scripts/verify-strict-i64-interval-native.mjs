@@ -33,6 +33,39 @@ for(const a of ranges)for(const n of [0n,1n,2n,16n,17n,MAX]){
  const result=!valid(a)||n<1n||n>16n?-1:Number(a[0]>=0n&&a[1]<n);
  calls.push(['prove_fixed_index('+[...a,n].map(literal).join(', ')+')',result]);
 }
+// Shared debit rows are point-interval obligations, NOT original guest lowering.
+// Prove each stage before evaluating the next, so cancellation and discarded
+// results never erase a failing intermediate. The Atto kernel returns only
+// admission decisions; the independent BigInt oracle computes expected facts.
+const debitBytes=readFileSync(new URL('../contracts/atto-xo-checked-debit-v1/cases.tsv',import.meta.url));
+assert.equal(hash(debitBytes),'e6e3394d5d62ec1f8171053b74a3b68389c41d5c797d81c14f561d1ca097a28b');
+const debitRows=debitBytes.toString('utf8').trimEnd().split('\n').map(line=>line.split('|'));
+assert.deepEqual(debitRows.map(r=>[r[0],r[1]]),[
+ ['normal','42'],['control','43'],['max-valid','42'],
+ ['fee-overflow','overflow'],['notional-overflow','overflow'],
+ ['overflow-cancel','overflow'],['overflow-dead-result','overflow']
+]);
+const fits=v=>v>=MIN&&v<=MAX;
+const beforeDebit=calls.length;
+for(const row of debitRows){
+ assert.equal(row.length,8);
+ const [id,want,p,s,f,op,r]=row;
+ const price=BigInt(p),shares=BigInt(s),fee=BigInt(f),rhs=BigInt(r);
+ assert.ok([price,shares,fee,rhs].every(fits),id);
+ assert.ok(['+','-','*'].includes(op),id);
+ const stages=[['mul',shares],['add',fee],[{'+':'add','-':'sub','*':'mul'}[op],rhs]];
+ let value=price,failed=false;
+ for(const [kind,right] of stages){
+  const next=kind==='mul'?value*right:kind==='add'?value+right:value-right;
+  const safe=fits(next);
+  const args=[value,value,right,right].map(literal).join(', ');
+  calls.push(['prove_i64_'+kind+'('+args+')',Number(safe)]);
+  if(!safe){failed=true;break;}
+  value=next;
+ }
+ assert.equal(failed?'overflow':value.toString(),want,id);
+}
+assert.equal(calls.length-beforeDebit,15);
 const work=mkdtempSync(join(tmpdir(),'atto-strict-kernel-'));
 function run(cmd,args){const r=spawnSync(cmd,args,{cwd:work,encoding:'utf8',timeout:120000,maxBuffer:8*1024*1024});if(r.error)throw r.error;assert.equal(r.signal,null);return r;}
 function ok(r,id){assert.equal(r.status,0,id+': '+r.stderr);}
@@ -48,5 +81,5 @@ try{
   ok(run(exe,[]),'actual proof kernel guest');
   passed+=chunk.length;console.log('ATTO_PROOF_GUEST',i,chunk.length,hash(readFileSync(input)),hash(readFileSync(exe)));
  }
- assert.equal(passed,1404);console.log('ATTO_PROOF_RESULT',JSON.stringify({passed,total:calls.length,stage:0,selfHosted:false,sourceBlob,compilerPin}));
+ assert.equal(passed,1419);console.log('ATTO_PROOF_RESULT',JSON.stringify({passed,total:calls.length,stage:0,selfHosted:false,sharedDebitPointObligations:15,sourceBlob,compilerPin}));
 }finally{rmSync(work,{recursive:true,force:true});}
