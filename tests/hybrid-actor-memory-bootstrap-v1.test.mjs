@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 
 const manifest=JSON.parse(readFileSync(
   new URL('../contracts/hybrid-actor-memory-bootstrap-v1.json',import.meta.url),'utf8'));
-const seed=readFileSync(new URL('../src/scalar_codegen.atto',import.meta.url));
+const seed=readFileSync(new URL('./fixtures/historical-stage0-scalar-20261117.atto',import.meta.url));
 function shaGitBlob(bytes){
   return createHash('sha1')
     .update('blob '+bytes.byteLength+String.fromCharCode(0))
