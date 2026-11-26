@@ -112,6 +112,38 @@ pub fnc compile_ascii_triplet(int lhs_ascii, int op_ascii, int rhs_ascii): int {
     return 66 + immediate * 256 + 11 * 65536;
 }
 
+// Compiler-internal proof decision, not a guest ABI or public Error type.
+// Inputs are normalized checked facts: family 1 = Option, 2 = Result;
+// success 0 = failure, 1 = success; discard 1 = non-observable Error;
+// closed 1 = statically known, effect-free value. Unknown facts fail closed.
+// Result: 0 = reject optimization, 1 = select existing payload,
+// 2 = select fallback. The caller must retain the original IR when rejected.
+pub fnc checked_unwrap_fold_decision(int family, int success, int discard, int closed): int {
+    if family neq 1 then
+        if family neq 2 then
+            return 0;
+        fi
+    fi
+    if closed neq 1 then
+        return 0;
+    fi
+    if discard neq 0 then
+        if discard neq 1 then
+            return 0;
+        fi
+    fi
+    if success eq 1 then
+        return 1;
+    fi
+    if success neq 0 then
+        return 0;
+    fi
+    if discard neq 1 then
+        return 0;
+    fi
+    return 2;
+}
+
 // Stage-0 native smoke entry: "6*7" compiles to 731714.
 // The subtraction makes exit status 42 on POSIX, if compiled and run.
 // A passing exit code alone does NOT prove general source compilation.
