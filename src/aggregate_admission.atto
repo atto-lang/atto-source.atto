@@ -8,17 +8,45 @@
 // key_proof: 0=not proven, 1=proven stable Hash/Eq.
 // name_proof: 0=not proven, 1=proven static valid identifier.
 // Returns 0=admit semantic item, negative=deny; never emits an aggregate.
-pub fnc admit_aggregate_item(int target, int item, int key_type, int expected_key_type, int key_proof, int name_proof): int {
+// Keep every helper within the Stage-0 compiler's conditional CFG budget.
+pub fnc validate_aggregate_tags(int target, int item, int key_type): int {
     if target < 1 then return -1; fi
     if target > 5 then return -1; fi
     if item < 1 then return -2; fi
     if item > 3 then return -2; fi
     if key_type < 1 then return -3; fi
     if key_type > 4 then return -3; fi
+    return 0;
+}
+
+pub fnc validate_aggregate_proofs(int key_proof, int name_proof): int {
     if key_proof < 0 then return -4; fi
     if key_proof > 1 then return -4; fi
     if name_proof < 0 then return -4; fi
     if name_proof > 1 then return -4; fi
+    return 0;
+}
+
+pub fnc admit_aggregate_map(int target, int item, int key_type, int expected_key_type, int key_proof): int {
+    if item eq 3 then return -2; fi
+    if target eq 5 then
+        if item neq 2 then return -2; fi
+    fi
+    if expected_key_type < 1 then return -3; fi
+    if expected_key_type > 4 then return -3; fi
+    if key_type neq expected_key_type then return -3; fi
+    if key_proof neq 1 then return -6; fi
+    return 0;
+}
+
+pub fnc admit_aggregate_record(int item, int key_type, int name_proof): int {
+    if item eq 2 then return -2; fi
+    if key_type neq 1 then return -3; fi
+    if name_proof neq 1 then return -5; fi
+    return 0;
+}
+
+pub fnc admit_aggregate_product(int target, int item, int key_type, int expected_key_type, int key_proof, int name_proof): int {
     if item eq 1 then
         if key_type neq 1 then return -3; fi
     fi
@@ -31,18 +59,15 @@ pub fnc admit_aggregate_item(int target, int item, int key_type, int expected_ke
         return 0;
     fi
     if target eq 4 then
-        if item eq 2 then return -2; fi
-        if key_type neq 1 then return -3; fi
-        if name_proof neq 1 then return -5; fi
-        return 0;
+        return admit_aggregate_record(item, key_type, name_proof);
     fi
-    if item eq 3 then return -2; fi
-    if target eq 5 then
-        if item neq 2 then return -2; fi
-    fi
-    if expected_key_type < 1 then return -3; fi
-    if expected_key_type > 4 then return -3; fi
-    if key_type neq expected_key_type then return -3; fi
-    if key_proof neq 1 then return -6; fi
-    return 0;
+    return admit_aggregate_map(target, item, key_type, expected_key_type, key_proof);
+}
+
+pub fnc admit_aggregate_item(int target, int item, int key_type, int expected_key_type, int key_proof, int name_proof): int {
+    val tags: int = validate_aggregate_tags(target, item, key_type);
+    if tags neq 0 then return tags; fi
+    val proofs: int = validate_aggregate_proofs(key_proof, name_proof);
+    if proofs neq 0 then return proofs; fi
+    return admit_aggregate_product(target, item, key_type, expected_key_type, key_proof, name_proof);
 }
