@@ -69,6 +69,21 @@ function matrix() {
     ['compile_ascii_triplet(9223372036854775807, 43, 49)', -1],
     ['compile_ascii_triplet(49, 43, -9223372036854775807)', -2]
   );
+  // Normalized compiler fact decisions, never a public guest tag ABI.
+  // Independent truth-table oracle for both sum families.
+  for (const family of [1, 2]) {
+    for (const [success, discard, closed, decision] of [
+      [0,0,0,0], [0,0,1,0], [0,1,0,0], [0,1,1,2],
+      [1,0,0,0], [1,0,1,1], [1,1,0,0], [1,1,1,1]
+    ]) checks.push(['checked_unwrap_fold_decision('+
+      [family,success,discard,closed].join(', ')+')',decision]);
+  }
+  for (const bad of ['-9223372036854775808','-1','3','9223372036854775807']) {
+    for (let field=0;field<4;field++) {
+      const args=['1','1','1','1'];args[field]=bad;
+      checks.push(['checked_unwrap_fold_decision('+args.join(', ')+')',0]);
+    }
+  }
   return checks;
 }
 function runNativeGate() {
