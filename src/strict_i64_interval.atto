@@ -127,22 +127,1082 @@ pub fnc prove_i64_mul_pair(int a, int b): int {
         factor = 0 - b;
     fi
     let int total = 0;
-    while factor > 0 {
-        val half: int = factor ashr 1;
-        if factor - half * 2 eq 1 then
-            if total < limit - term then
-                return 0;
-            fi
-            total = total + term;
+    // 63 explicit stages: positive signed factor has at most 63 bits.
+    // Stage-0 LLVM does not admit ordinary while lowering here.
+    if factor eq 0 then
+        return 1;
+    fi
+    val half0: int = factor ashr 1;
+    if factor - half0 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
         fi
-        factor = half;
-        if factor > 0 then
-            if term < limit - term then
-                return 0;
-            fi
-            term = term + term;
+        total = total + term;
+    fi
+    factor = half0;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
         fi
-    }
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half1: int = factor ashr 1;
+    if factor - half1 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half1;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half2: int = factor ashr 1;
+    if factor - half2 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half2;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half3: int = factor ashr 1;
+    if factor - half3 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half3;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half4: int = factor ashr 1;
+    if factor - half4 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half4;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half5: int = factor ashr 1;
+    if factor - half5 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half5;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half6: int = factor ashr 1;
+    if factor - half6 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half6;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half7: int = factor ashr 1;
+    if factor - half7 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half7;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half8: int = factor ashr 1;
+    if factor - half8 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half8;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half9: int = factor ashr 1;
+    if factor - half9 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half9;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half10: int = factor ashr 1;
+    if factor - half10 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half10;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half11: int = factor ashr 1;
+    if factor - half11 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half11;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half12: int = factor ashr 1;
+    if factor - half12 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half12;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half13: int = factor ashr 1;
+    if factor - half13 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half13;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half14: int = factor ashr 1;
+    if factor - half14 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half14;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half15: int = factor ashr 1;
+    if factor - half15 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half15;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half16: int = factor ashr 1;
+    if factor - half16 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half16;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half17: int = factor ashr 1;
+    if factor - half17 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half17;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half18: int = factor ashr 1;
+    if factor - half18 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half18;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half19: int = factor ashr 1;
+    if factor - half19 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half19;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half20: int = factor ashr 1;
+    if factor - half20 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half20;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half21: int = factor ashr 1;
+    if factor - half21 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half21;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half22: int = factor ashr 1;
+    if factor - half22 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half22;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half23: int = factor ashr 1;
+    if factor - half23 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half23;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half24: int = factor ashr 1;
+    if factor - half24 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half24;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half25: int = factor ashr 1;
+    if factor - half25 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half25;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half26: int = factor ashr 1;
+    if factor - half26 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half26;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half27: int = factor ashr 1;
+    if factor - half27 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half27;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half28: int = factor ashr 1;
+    if factor - half28 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half28;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half29: int = factor ashr 1;
+    if factor - half29 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half29;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half30: int = factor ashr 1;
+    if factor - half30 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half30;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half31: int = factor ashr 1;
+    if factor - half31 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half31;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half32: int = factor ashr 1;
+    if factor - half32 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half32;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half33: int = factor ashr 1;
+    if factor - half33 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half33;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half34: int = factor ashr 1;
+    if factor - half34 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half34;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half35: int = factor ashr 1;
+    if factor - half35 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half35;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half36: int = factor ashr 1;
+    if factor - half36 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half36;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half37: int = factor ashr 1;
+    if factor - half37 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half37;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half38: int = factor ashr 1;
+    if factor - half38 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half38;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half39: int = factor ashr 1;
+    if factor - half39 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half39;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half40: int = factor ashr 1;
+    if factor - half40 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half40;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half41: int = factor ashr 1;
+    if factor - half41 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half41;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half42: int = factor ashr 1;
+    if factor - half42 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half42;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half43: int = factor ashr 1;
+    if factor - half43 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half43;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half44: int = factor ashr 1;
+    if factor - half44 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half44;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half45: int = factor ashr 1;
+    if factor - half45 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half45;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half46: int = factor ashr 1;
+    if factor - half46 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half46;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half47: int = factor ashr 1;
+    if factor - half47 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half47;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half48: int = factor ashr 1;
+    if factor - half48 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half48;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half49: int = factor ashr 1;
+    if factor - half49 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half49;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half50: int = factor ashr 1;
+    if factor - half50 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half50;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half51: int = factor ashr 1;
+    if factor - half51 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half51;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half52: int = factor ashr 1;
+    if factor - half52 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half52;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half53: int = factor ashr 1;
+    if factor - half53 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half53;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half54: int = factor ashr 1;
+    if factor - half54 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half54;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half55: int = factor ashr 1;
+    if factor - half55 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half55;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half56: int = factor ashr 1;
+    if factor - half56 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half56;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half57: int = factor ashr 1;
+    if factor - half57 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half57;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half58: int = factor ashr 1;
+    if factor - half58 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half58;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half59: int = factor ashr 1;
+    if factor - half59 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half59;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half60: int = factor ashr 1;
+    if factor - half60 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half60;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half61: int = factor ashr 1;
+    if factor - half61 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half61;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor eq 0 then
+        return 1;
+    fi
+    val half62: int = factor ashr 1;
+    if factor - half62 * 2 eq 1 then
+        if total < limit - term then
+            return 0;
+        fi
+        total = total + term;
+    fi
+    factor = half62;
+    if factor > 0 then
+        if term < limit - term then
+            return 0;
+        fi
+        term = term + term;
+    fi
+    if factor neq 0 then
+        return 0;
+    fi
     return 1;
 }
 // A bilinear product over an integer rectangle attains its extrema at corners.
