@@ -64,3 +64,82 @@ pub fnc prove_fixed_index(int lo, int hi, int length): int {
     fi
     return 1;
 }
+
+// Signed subtraction: compare endpoints without negating INT64_MIN.
+pub fnc prove_i64_sub(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    val max: int = 9223372036854775807;
+    val min: int = -9223372036854775807 - 1;
+    if blo < 0 then
+        if ahi > max + blo then
+            return 0;
+        fi
+    fi
+    if bhi > 0 then
+        if alo < min + bhi then
+            return 0;
+        fi
+    fi
+    return 1;
+}
+// Test one product using sign-aware quotients; never actually multiply
+// or evaluate MIN / -1. Truncation toward zero supplies the exact threshold.
+pub fnc prove_i64_mul_pair(int a, int b): int {
+    val max: int = 9223372036854775807;
+    val min: int = -9223372036854775807 - 1;
+    if a eq 0 then
+        return 1;
+    fi
+    if b eq 0 then
+        return 1;
+    fi
+    if a > 0 then
+        if b > 0 then
+            if a > max / b then
+                return 0;
+            fi
+        else
+            if b < min / a then
+                return 0;
+            fi
+        fi
+    else
+        if b > 0 then
+            if a < min / b then
+                return 0;
+            fi
+        else
+            if a < max / b then
+                return 0;
+            fi
+        fi
+    fi
+    return 1;
+}
+// A bilinear product over an integer rectangle attains its extrema at corners.
+pub fnc prove_i64_mul(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    if prove_i64_mul_pair(alo, blo) eq 0 then
+        return 0;
+    fi
+    if prove_i64_mul_pair(alo, bhi) eq 0 then
+        return 0;
+    fi
+    if prove_i64_mul_pair(ahi, blo) eq 0 then
+        return 0;
+    fi
+    if prove_i64_mul_pair(ahi, bhi) eq 0 then
+        return 0;
+    fi
+    return 1;
+}

@@ -17,12 +17,17 @@ const ranges=[[MIN,MIN],[MIN,MIN+1n],[MIN,MAX],[-2n,-1n],[-1n,-1n],[-1n,1n],[0n,
 const valid=([a,b])=>a<=b;
 const literal=v=>v===MIN?'(-9223372036854775807 - 1)':String(v);
 const calls=[];
+// Include exact product thresholds and malformed interval endpoints.
+ranges.push([-3037000500n,-3037000499n],[3037000499n,3037000500n],[MIN/2n,MIN/2n],[MAX/2n,MAX/2n],[-2n,2n],[MAX,MIN]);
 for(const a of ranges)for(const b of ranges){
  const validBoth=valid(a)&&valid(b);
  const args=[...a,...b].map(literal).join(', ');
  const add=validBoth?Number(a[0]+b[0]>=MIN&&a[1]+b[1]<=MAX):-1;
  const div=validBoth?Number(!(b[0]<=0n&&b[1]>=0n)&&!(a[0]===MIN&&b[0]<=-1n&&b[1]>=-1n)):-1;
- calls.push(['prove_i64_add('+args+')',add],['prove_i64_div('+args+')',div]);
+ const sub=validBoth?Number(a[0]-b[1]>=MIN&&a[1]-b[0]<=MAX):-1;
+ const corners=[a[0]*b[0],a[0]*b[1],a[1]*b[0],a[1]*b[1]];
+ const mul=validBoth?Number(corners.every(v=>v>=MIN&&v<=MAX)):-1;
+ calls.push(['prove_i64_add('+args+')',add],['prove_i64_div('+args+')',div],['prove_i64_sub('+args+')',sub],['prove_i64_mul('+args+')',mul]);
 }
 for(const a of ranges)for(const n of [0n,1n,2n,16n,17n,MAX]){
  const result=!valid(a)||n<1n||n>16n?-1:Number(a[0]>=0n&&a[1]<n);
@@ -43,5 +48,5 @@ try{
   ok(run(exe,[]),'actual proof kernel guest');
   passed+=chunk.length;console.log('ATTO_PROOF_GUEST',i,chunk.length,hash(readFileSync(input)),hash(readFileSync(exe)));
  }
- assert.equal(passed,360);console.log('ATTO_PROOF_RESULT',JSON.stringify({passed,total:calls.length,stage:0,selfHosted:false,sourceBlob,compilerPin}));
+ assert.equal(passed,1404);console.log('ATTO_PROOF_RESULT',JSON.stringify({passed,total:calls.length,stage:0,selfHosted:false,sourceBlob,compilerPin}));
 }finally{rmSync(work,{recursive:true,force:true});}
