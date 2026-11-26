@@ -88,6 +88,27 @@ function matrix() {
     ['quantity_seed_digit_ratio(1, 0)',-4]
   );
   }
+  if(options['contract-seed']==='1'){
+    const bodies=['20212223142425','26212223142427','2826212223142427','2829212223142427'];
+    const layouts=[
+      ['11121314151719','11121314161819','0','0'],
+      ['0','0','12141517','12141618'],
+      ['11121314151719','0','0','12141618'],
+      ['11121314161819','0','12141517','0']
+    ];
+    for(const b of bodies)for(const p of layouts){
+      for(let arg=49;arg<=57;arg++)checks.push([`compile_contract_digit_helper(${p.join(', ')}, ${b}, ${arg})`,66+Math.floor(6/(arg-48))*256+11*65536]);
+      for(const arg of [48,47,58,9223372036854775807n])checks.push([`compile_contract_digit_helper(${p.join(', ')}, ${b}, ${arg})`,-14]);
+    }
+    for(const b of ['29212223142427','26212223142425','262122231424','282626212223142427','0','9223372036854775807'])
+      checks.push([`compile_contract_digit_helper(11121314151719, 0, 0, 12141618, ${b}, 50)`,-12]);
+    checks.push(
+      ['compile_contract_digit_helper(111213141517, 0, 0, 12141618, 20212223142425, 50)',-11],
+      ['compile_contract_digit_helper(11121314151719, 0, 12141517, 0, 20212223142425, 50)',-13],
+      ['compile_contract_digit_helper(11121314151719, 0, 0, 0, 20212223142425, 50)',-13],
+      ['compile_contract_digit_helper(0, 0, 0, 0, 20212223142425, 50)',-13],
+      ['compile_contract_digit_helper(11121314151719, 0, 12141517, 12141618, 20212223142425, 50)',-13]);
+  }
   return checks;
 }
 function runNativeGate() {
