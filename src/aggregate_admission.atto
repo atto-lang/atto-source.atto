@@ -1,0 +1,48 @@
+// Stage-0 Atto-authored semantic kernel. Not a lexer, resolver, owning
+// aggregate implementation, or self-hosted compiler. The caller must prove
+// symbol identity, key/value types, Hash/Eq and identifier provenance before
+// supplying these abstract integer tags. No runtime user integer is authority.
+// target: 1=Pair creation, 2=Entry creation, 3=Map.of, 4=Record.of,
+//         5=Map.of_entries. item: 1=Pair, 2=Entry, 3=named field.
+// key_type: 1=string, 2=int, 3=bool, 4=other resolved type.
+// key_proof: 0=not proven, 1=proven stable Hash/Eq.
+// name_proof: 0=not proven, 1=proven static valid identifier.
+// Returns 0=admit semantic item, negative=deny; never emits an aggregate.
+pub fnc admit_aggregate_item(int target, int item, int key_type, int expected_key_type, int key_proof, int name_proof): int {
+    if target < 1 then return -1; fi
+    if target > 5 then return -1; fi
+    if item < 1 then return -2; fi
+    if item > 3 then return -2; fi
+    if key_type < 1 then return -3; fi
+    if key_type > 4 then return -3; fi
+    if key_proof < 0 then return -4; fi
+    if key_proof > 1 then return -4; fi
+    if name_proof < 0 then return -4; fi
+    if name_proof > 1 then return -4; fi
+    if item eq 1 then
+        if key_type neq 1 then return -3; fi
+    fi
+    if target eq 1 then
+        if item neq 1 then return -2; fi
+        return 0;
+    fi
+    if target eq 2 then
+        if item neq 2 then return -2; fi
+        return 0;
+    fi
+    if target eq 4 then
+        if item eq 2 then return -2; fi
+        if key_type neq 1 then return -3; fi
+        if name_proof neq 1 then return -5; fi
+        return 0;
+    fi
+    if item eq 3 then return -2; fi
+    if target eq 5 then
+        if item neq 2 then return -2; fi
+    fi
+    if expected_key_type < 1 then return -3; fi
+    if expected_key_type > 4 then return -3; fi
+    if key_type neq expected_key_type then return -3; fi
+    if key_proof neq 1 then return -6; fi
+    return 0;
+}
