@@ -84,6 +84,46 @@ function matrix() {
       checks.push(['checked_unwrap_fold_decision('+args.join(', ')+')',0]);
     }
   }
+  // Exact ABI matrix: 5 nominal unit IDs and every ASCII digit pair.
+  if(options['quantity-seed']==='1'){
+  const dimensions=[0,1,1,2,1,1],scales=[0,1,1000,1,1,1000];
+  for(let a=0;a<=9;a++)for(let b=0;b<=9;b++)for(let u=1;u<=5;u++)for(let v=1;v<=5;v++){
+    const result=dimensions[u]!==dimensions[v]?-8:scales[u]!==scales[v]?-9:b===0?-10:
+      66+Math.floor(a/b)*256+11*65536;
+    checks.push([`compile_quantity_digit_ratio(${a+48}, ${u}, ${b+48}, ${v})`,result]);
+  }
+  checks.push(
+    ['compile_quantity_digit_ratio(47, 1, 49, 1)',-1],
+    ['compile_quantity_digit_ratio(49, 1, 58, 1)',-2],
+    ['compile_quantity_digit_ratio(49, 0, 48, 1)',-7],
+    ['compile_quantity_digit_ratio(49, 1, 48, 9223372036854775807)',-7],
+    ['compile_quantity_digit_ratio(49, -9223372036854775807, 49, 1)',-7],
+    ['quantity_seed_digit_ratio(9223372036854775807, 1)',-4],
+    ['quantity_seed_digit_ratio(1, -9223372036854775807)',-4],
+    ['quantity_seed_digit_ratio(1, 0)',-4]
+  );
+  }
+  if(options['contract-seed']==='1'){
+    const bodies=['20212223142425','26212223142427','2826212223142427','2829212223142427'];
+    const layouts=[
+      ['11121314151719','11121314161819','0','0'],
+      ['0','0','12141517','12141618'],
+      ['11121314151719','0','0','12141618'],
+      ['11121314161819','0','12141517','0']
+    ];
+    for(const b of bodies)for(const p of layouts){
+      for(let arg=49;arg<=57;arg++)checks.push([`compile_contract_digit_helper(${p.join(', ')}, ${b}, ${arg})`,66+Math.floor(6/(arg-48))*256+11*65536]);
+      for(const arg of [48,47,58,9223372036854775807n])checks.push([`compile_contract_digit_helper(${p.join(', ')}, ${b}, ${arg})`,-14]);
+    }
+    for(const b of ['29212223142427','26212223142425','262122231424','282626212223142427','0','9223372036854775807'])
+      checks.push([`compile_contract_digit_helper(11121314151719, 0, 0, 12141618, ${b}, 50)`,-12]);
+    checks.push(
+      ['compile_contract_digit_helper(111213141517, 0, 0, 12141618, 20212223142425, 50)',-11],
+      ['compile_contract_digit_helper(11121314151719, 0, 12141517, 0, 20212223142425, 50)',-13],
+      ['compile_contract_digit_helper(11121314151719, 0, 0, 0, 20212223142425, 50)',-13],
+      ['compile_contract_digit_helper(0, 0, 0, 0, 20212223142425, 50)',-13],
+      ['compile_contract_digit_helper(11121314151719, 0, 12141517, 12141618, 20212223142425, 50)',-13]);
+  }
   return checks;
 }
 function runNativeGate() {

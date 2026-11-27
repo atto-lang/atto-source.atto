@@ -1,0 +1,16 @@
+// Stage-0 classifier of already-delimited, contiguous transfer tokens.
+// Caller must distinguish != and !eq comparisons before calling.
+// Pack the full spelling big endian; next_byte is the immediate source byte
+// (or -1 for EOF). 1: transfer, 0: other token, -1: missing ASCII separator.
+// Both spellings intentionally return one semantic opcode.
+pub fnc ownership_transfer_token(int byte_count, int packed, int next_byte): int {
+    if byte_count neq 5 then return 0; fi
+    if packed neq 499850634529 then
+        if packed neq 470021465377 then return 0; fi
+    fi
+    if next_byte eq 32 then return 1; fi
+    if next_byte >= 9 then
+        if next_byte <= 13 then return 1; fi
+    fi
+    return -1;
+}

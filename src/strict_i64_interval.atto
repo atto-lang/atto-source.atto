@@ -65,6 +65,21 @@ pub fnc prove_fixed_index(int lo, int hi, int length): int {
     return 1;
 }
 
+
+// Bounded Stage-0 slice proof: supplied extent is a proven fixed-array fact.
+// No pointer, allocation, lifetime, or dynamic borrow authority is granted.
+// -1 = invalid extent; 0 = out of bounds; 1 = safe half-open slice.
+// An empty slice at the end, including an empty array, is permitted.
+pub fnc prove_fixed_slice(int start, int count, int extent): int {
+    if extent < 0 then return -1; fi
+    if extent > 16 then return -1; fi
+    if start < 0 then return 0; fi
+    if count < 0 then return 0; fi
+    if start > extent then return 0; fi
+    if count > extent - start then return 0; fi
+    return 1;
+}
+
 // Signed subtraction: compare endpoints without negating INT64_MIN.
 pub fnc prove_i64_sub(int alo, int ahi, int blo, int bhi): int {
     if alo > ahi then
