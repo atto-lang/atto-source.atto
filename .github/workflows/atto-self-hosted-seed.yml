@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out immutable submitted commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -51,7 +51,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out immutable submitted commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -74,7 +74,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out immutable submitted commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -92,6 +92,7 @@ jobs:
           node --check scripts/stage0_native_gate.mjs
           node --test scripts/stage0_native_gate.test.mjs
           node --test tests/hybrid-actor-memory-bootstrap-v1.test.mjs
+          node --test tests/aggregate_constructor_bootstrap_contract.test.mjs
 
 
 # These jobs verify HOST reference models and runner guards. They do NOT compile

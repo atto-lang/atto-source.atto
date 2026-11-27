@@ -1,0 +1,1107 @@
+// Stage-0 Atto-authored, nonallocating interval admission kernel.
+// Returns 1 when the stated operation is proved safe, 0 if not, -1 for
+// malformed ranges. Not a parser, compiler CLI or self-hosting claim.
+pub fnc prove_i64_add(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    val max: int = 9223372036854775807;
+    val min: int = -9223372036854775807 - 1;
+    // Subtractions are safe because the corresponding sign is checked.
+    if bhi > 0 then
+        if ahi > max - bhi then
+            return 0;
+        fi
+    fi
+    if blo < 0 then
+        if alo < min - blo then
+            return 0;
+        fi
+    fi
+    return 1;
+}
+pub fnc prove_i64_div(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    if blo <= 0 then
+        if bhi >= 0 then
+            return 0;
+        fi
+    fi
+    val min: int = -9223372036854775807 - 1;
+    if alo eq min then
+        if blo <= -1 then
+            if bhi >= -1 then
+                return 0;
+            fi
+        fi
+    fi
+    return 1;
+}
+// Receiver length is a supplied proof fact, not a pointer or array identity.
+pub fnc prove_fixed_index(int lo, int hi, int length): int {
+    if lo > hi then
+        return -1;
+    fi
+    if length < 1 then
+        return -1;
+    fi
+    if length > 16 then
+        return -1;
+    fi
+    if lo < 0 then
+        return 0;
+    fi
+    if hi >= length then
+        return 0;
+    fi
+    return 1;
+}
+
+
+// Bounded Stage-0 slice proof: supplied extent is a proven fixed-array fact.
+// No pointer, allocation, lifetime, or dynamic borrow authority is granted.
+// -1 = invalid extent; 0 = out of bounds; 1 = safe half-open slice.
+// An empty slice at the end, including an empty array, is permitted.
+pub fnc prove_fixed_slice(int start, int count, int extent): int {
+    if extent < 0 then return -1; fi
+    if extent > 16 then return -1; fi
+    if start < 0 then return 0; fi
+    if count < 0 then return 0; fi
+    if start > extent then return 0; fi
+    if count > extent - start then return 0; fi
+    return 1;
+}
+
+// Signed subtraction: compare endpoints without negating INT64_MIN.
+pub fnc prove_i64_sub(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    val max: int = 9223372036854775807;
+    val min: int = -9223372036854775807 - 1;
+    if blo < 0 then
+        if ahi > max + blo then
+            return 0;
+        fi
+    fi
+    if bhi > 0 then
+        if alo < min + bhi then
+            return 0;
+        fi
+    fi
+    return 1;
+}
+// 63 fixed stages, partitioned into acyclic private helpers to respect the
+// bootstrap compiler's local control-flow caps. Internal domain: nonpositive
+// term/total, nonnegative factor, limit MIN or -MAX. No public entry to stages.
+fnc mul_proof_stage31(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    return 0;
+}
+
+fnc mul_proof_stage30(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage31(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage29(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage30(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage28(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage29(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage27(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage28(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage26(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage27(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage25(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage26(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage24(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage25(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage23(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage24(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage22(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage23(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage21(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage22(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage20(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage21(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage19(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage20(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage18(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage19(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage17(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage18(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage16(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage17(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage15(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage16(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage14(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage15(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage13(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage14(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage12(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage13(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage11(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage12(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage10(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage11(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage9(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage10(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage8(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage9(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage7(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage8(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage6(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage7(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage5(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage6(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage4(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage5(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage3(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage4(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage2(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage3(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage1(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage2(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_stage0(int term, int factor, int total, int limit): int {
+    val half0: int = factor ashr 1;
+    val delta0: int = term * (factor - half0 * 2);
+    if total < limit - delta0 then
+        return 0;
+    fi
+    val sum0: int = total + delta0;
+    if half0 eq 0 then
+        return 1;
+    fi
+    if term < limit - term then
+        return 0;
+    fi
+    val doubled0: int = term + term;
+    val half1: int = half0 ashr 1;
+    val delta1: int = doubled0 * (half0 - half1 * 2);
+    if sum0 < limit - delta1 then
+        return 0;
+    fi
+    val sum1: int = sum0 + delta1;
+    if half1 eq 0 then
+        return 1;
+    fi
+    if doubled0 < limit - doubled0 then
+        return 0;
+    fi
+    val doubled1: int = doubled0 + doubled0;
+    return mul_proof_stage1(doubled1, half1, sum1, limit);
+}
+
+fnc mul_proof_nonmin(int a, int b): int {
+    val min: int = -9223372036854775807 - 1;
+    if a < 0 then
+        if b < 0 then
+            return mul_proof_stage0(a, 0-b, 0, -9223372036854775807);
+        fi
+        return mul_proof_stage0(a, b, 0, min);
+    fi
+    if b < 0 then
+        return mul_proof_stage0(0-a, 0-b, 0, min);
+    fi
+    return mul_proof_stage0(0-a, b, 0, -9223372036854775807);
+}
+pub fnc prove_i64_mul_pair(int a, int b): int {
+    val min: int = -9223372036854775807 - 1;
+    if a eq 0 then
+        return 1;
+    fi
+    if b eq 0 then
+        return 1;
+    fi
+    if a eq min then
+        if b eq 1 then
+            return 1;
+        fi
+        return 0;
+    fi
+    if b eq min then
+        if a eq 1 then
+            return 1;
+        fi
+        return 0;
+    fi
+    return mul_proof_nonmin(a,b);
+}
+// A bilinear product over an integer rectangle attains its extrema at corners.
+pub fnc prove_i64_mul(int alo, int ahi, int blo, int bhi): int {
+    if alo > ahi then
+        return -1;
+    fi
+    if blo > bhi then
+        return -1;
+    fi
+    if prove_i64_mul_pair(alo, blo) eq 0 then
+        return 0;
+    fi
+    if prove_i64_mul_pair(alo, bhi) eq 0 then
+        return 0;
+    fi
+    if prove_i64_mul_pair(ahi, blo) eq 0 then
+        return 0;
+    fi
+    if prove_i64_mul_pair(ahi, bhi) eq 0 then
+        return 0;
+    fi
+    return 1;
+}

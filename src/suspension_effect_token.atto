@@ -1,0 +1,27 @@
+// Stage-0 token classifier, NOT a full lexer or continuation compiler.
+// Caller supplies one already-delimited token, packed big endian from up to
+// eight UTF-8 bytes, with the original byte length. No Unicode folding.
+// Result 1 = canonical suspension effect; 0 = other token.
+pub fnc suspension_effect_token(int byte_count, int packed): int {
+    if byte_count eq 3 then
+        if packed eq 14854038 then
+            return 1;
+        fi
+    fi
+    if byte_count eq 3 then
+        if packed eq 14846082 then
+            return 1;
+        fi
+    fi
+    if byte_count eq 4 then
+        if packed eq 1937077104 then
+            return 1;
+        fi
+    fi
+    if byte_count eq 8 then
+        if packed eq 8319682813212124275 then
+            return 1;
+        fi
+    fi
+    return 0;
+}

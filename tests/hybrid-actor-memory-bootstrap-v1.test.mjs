@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 
 const manifest=JSON.parse(readFileSync(
   new URL('../contracts/hybrid-actor-memory-bootstrap-v1.json',import.meta.url),'utf8'));
-const seed=readFileSync(new URL('../src/scalar_codegen.atto',import.meta.url));
+const seed=readFileSync(new URL('./fixtures/historical-stage0-scalar-20261117.atto',import.meta.url));
 function shaGitBlob(bytes){
   return createHash('sha1')
     .update('blob '+bytes.byteLength+String.fromCharCode(0))
@@ -34,4 +34,20 @@ test('linked-object .atto guest is not falsely certified by scalar Stage-0',()=>
     assert.equal(status,'UNSUPPORTED',feature);
   }
   assert.equal(manifest.requirements.length,4);
+});
+
+test('bootstrap actor memory inventory cannot silently omit unsupported features',()=>{
+  const required=[
+    'actor_private_ref32_heap','actor_generation_and_incarnation',
+    'native_guest_nominal_node_graph','actor_memory_quota_and_peak_growth',
+    'cross_actor_take_and_share','self_hosted_compiler_stage1',
+    'self_hosted_compiler_stage2','self_hosted_compiler_stage3',
+    'hard_realtime_prefault','wide_handle64','capability128'
+  ];
+  assert.deepEqual(Object.keys(manifest.memory_capabilities).sort(),required.sort());
+  for(const name of required)
+    assert.equal(manifest.memory_capabilities[name],'UNSUPPORTED',name);
+  assert.equal(manifest.stage0.evidence_scope,'PINNED_LLVM_COMPILER_SCALAR_ATTO_GUEST_NOT_SELF_HOSTED');
+  assert.equal(manifest.canonical_guest_fixture.pr,461);
+  assert.equal(manifest.canonical_guest_fixture.guest_receipt,null);
 });
