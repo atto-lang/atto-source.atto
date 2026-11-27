@@ -144,6 +144,124 @@ pub fnc checked_unwrap_fold_decision(int family, int success, int discard, int c
     return 2;
 }
 
+// Bounded Stage-0 quantity admission over already resolved unit IDs.
+// 1=Second, 2=Millis, 3=Meter, 4=Second alias, 5=Millis alias.
+// Not a declaration parser: these IDs are fixed bootstrap metadata.
+// Only equal dimension AND equal scale may be erased by a ratio.
+pub fnc quantity_seed_dimension(int unit_id): int {
+    if unit_id eq 1 then return 1; fi
+    if unit_id eq 2 then return 1; fi
+    if unit_id eq 3 then return 2; fi
+    if unit_id eq 4 then return 1; fi
+    if unit_id eq 5 then return 1; fi
+    return 0;
+}
+
+pub fnc quantity_seed_scale(int unit_id): int {
+    if unit_id eq 1 then return 1; fi
+    if unit_id eq 2 then return 1000; fi
+    if unit_id eq 3 then return 1; fi
+    if unit_id eq 4 then return 1; fi
+    if unit_id eq 5 then return 1000; fi
+    return 0;
+}
+
+// No unbounded loop or general signed division is needed for the
+// single-digit seed. Each multiplication is bounded by 9*9.
+pub fnc quantity_seed_digit_ratio(int left, int right): int {
+    if left < 0 then return -4; fi
+    if left > 9 then return -4; fi
+    if right < 1 then return -4; fi
+    if right > 9 then return -4; fi
+    if left < right then return 0; fi
+    if left < right * 2 then return 1; fi
+    if left < right * 3 then return 2; fi
+    if left < right * 4 then return 3; fi
+    if left < right * 5 then return 4; fi
+    if left < right * 6 then return 5; fi
+    if left < right * 7 then return 6; fi
+    if left < right * 8 then return 7; fi
+    if left < right * 9 then return 8; fi
+    return 9;
+}
+
+// Negative result = no emitted instruction fragment.
+// -7 unknown unit, -8 dimension mismatch, -9 residual scale, -10 zero divisor.
+pub fnc compile_quantity_digit_ratio(int lhs_ascii, int lhs_unit, int rhs_ascii, int rhs_unit): int {
+    val lhs: int = ascii_digit_value(lhs_ascii);
+    if lhs < 0 then return -1; fi
+    val rhs: int = ascii_digit_value(rhs_ascii);
+    if rhs < 0 then return -2; fi
+    val left_dim: int = quantity_seed_dimension(lhs_unit);
+    val right_dim: int = quantity_seed_dimension(rhs_unit);
+    if left_dim eq 0 then return -7; fi
+    if right_dim eq 0 then return -7; fi
+    if left_dim neq right_dim then return -8; fi
+    if quantity_seed_scale(lhs_unit) neq quantity_seed_scale(rhs_unit) then return -9; fi
+    if rhs eq 0 then return -10; fi
+    val result: int = quantity_seed_digit_ratio(lhs, rhs);
+    if result < 0 then return -4; fi
+    return 66 + signed_leb128_byte(result) * 256 + 11 * 65536;
+}
+
+// Stage-0 contract token parser. The caller supplies lexed token packets;
+// this is not an arbitrary-source lexer or a full callable parser.
+// Base-100 token packets, most significant token first:
+// 11 @, 12 requires, 13 (, 14 x, 15 >=, 16 <=, 17 1,
+// 18 9, 19 ), 20 {, 21 return, 22 6, 23 /, 24 ;,
+// 25 }, 26 ::, 27 end, 28 newline, 29 begin.
+// Signature is fixed by the seed ABI: private int digit divisor -> int.
+// Every packet is checked in full; zero denotes an absent clause.
+// Bounds are flags: 1 lower, 2 upper; duplicate clauses are rejected.
+pub fnc contract_seed_clause(int packet, int annotation): int {
+    if packet eq 0 then return 0; fi
+    if annotation eq 1 then
+        if packet eq 11121314151719 then return 1; fi
+        if packet eq 11121314161819 then return 2; fi
+        return -11;
+    fi
+    if annotation neq 0 then return -11; fi
+    if packet eq 12141517 then return 1; fi
+    if packet eq 12141618 then return 2; fi
+    return -11;
+}
+
+pub fnc contract_seed_body(int packet): int {
+    if packet eq 20212223142425 then return 1; fi
+    if packet eq 26212223142427 then return 1; fi
+    if packet eq 2826212223142427 then return 1; fi
+    if packet eq 2829212223142427 then return 1; fi
+    return -12;
+}
+
+// Whole-profile proof: both bounds must be declared; the divisor ranges
+// over digits 1..9 and the fixed numerator is 6. This proves all callers,
+// not just the selected argument. The result is an emitted Wasm fragment.
+// -11 malformed clause, -12 malformed body, -13 missing/duplicate bound,
+// -14 argument violates contract. No nonnegative bytes on denial.
+pub fnc compile_contract_digit_helper(int a1, int a2, int k1, int k2, int body, int arg_ascii): int {
+    val p1: int = contract_seed_clause(a1, 1);
+    val p2: int = contract_seed_clause(a2, 1);
+    val p3: int = contract_seed_clause(k1, 0);
+    val p4: int = contract_seed_clause(k2, 0);
+    if p1 < 0 then return -11; fi
+    if p2 < 0 then return -11; fi
+    if p3 < 0 then return -11; fi
+    if p4 < 0 then return -11; fi
+    // Sum alone cannot distinguish duplicate lower bounds from one upper.
+    val sum: int = p1 + p2 + p3 + p4;
+    val squares: int = p1*p1 + p2*p2 + p3*p3 + p4*p4;
+    if sum neq 3 then return -13; fi
+    if squares neq 5 then return -13; fi
+    if contract_seed_body(body) neq 1 then return -12; fi
+    val arg: int = ascii_digit_value(arg_ascii);
+    if arg < 1 then return -14; fi
+    if arg > 9 then return -14; fi
+    val result: int = quantity_seed_digit_ratio(6, arg);
+    if result < 0 then return -14; fi
+    return 66 + signed_leb128_byte(result) * 256 + 11 * 65536;
+}
+
 // Stage-0 native smoke entry: "6*7" compiles to 731714.
 // The subtraction makes exit status 42 on POSIX, if compiled and run.
 // A passing exit code alone does NOT prove general source compilation.
